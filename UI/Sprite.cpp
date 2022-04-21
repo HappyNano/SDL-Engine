@@ -1,62 +1,54 @@
 #include "Sprite.hpp"
 #include <utility>
 
-SDLEngine::UI::Sprite::Sprite(SDL_Rect)
+SDLEngine::UI::Sprite::Sprite(Texture&& texture):
+  texture_(std::move(texture)),
+  collide_rect_(texture_.rect_),
+  scale_(1.f),
+  x_(texture_.rect_.x),
+  y_(texture_.rect_.y)
 {}
 
-SDLEngine::UI::Sprite::Sprite(const this_t&)
+void SDLEngine::UI::Sprite::render(SDL_Renderer* renderer)
 {
-  // SDL_Surface
-}
-SDLEngine::UI::Sprite::Sprite(this_t&& obj) noexcept:
-  texture_(obj.texture_),
-  texture_rect_(obj.texture_rect_),
-  collide_rect_(obj.collide_rect_),
-  scale_(obj.scale_),
-  x_(obj.x_),
-  y_(obj.y_)
-{
-  obj.texture_ = nullptr;
-  obj.texture_rect_ = {0, 0, 0, 0};
-  obj.collide_rect_ = {0, 0, 0, 0};
-  obj.scale_ = 0;
-  obj.x_ = 0;
-  obj.y_ = 0;
+  texture_.render(renderer);
 }
 
-SDLEngine::UI::Sprite::~Sprite()
+void SDLEngine::UI::Sprite::scale(double new_scale)
 {
-  if (texture_)
-  {
-    SDL_DestroyTexture(texture_);
-  }
+  texture_.rect_.w = texture_.rect_.w * (new_scale / scale_);
+  texture_.rect_.h = texture_.rect_.h * (new_scale / scale_);
+  collide_rect_.w = collide_rect_.w * (new_scale / scale_);
+  collide_rect_.h = collide_rect_.h * (new_scale / scale_);
+
+  scale_ = new_scale;
 }
 
-SDLEngine::UI::Sprite::this_t& SDLEngine::UI::Sprite::operator=(const this_t& obj)
+void SDLEngine::UI::Sprite::move(double offset_x, double offset_y)
 {
-  if (this != std::addressof(obj))
-  {
-    this_t temp(obj);
-    swap(temp);
-  }
-  return *this;
-}
-SDLEngine::UI::Sprite::this_t& SDLEngine::UI::Sprite::operator=(this_t&& obj) noexcept
-{
-  if (this != std::addressof(obj))
-  {
-    this_t temp(std::move(obj));
-    swap(temp);
-  }
-  return *this;
+  x_ += offset_x;
+  y_ += offset_y;
+  correctCoordinates();
 }
 
-void SDLEngine::UI::Sprite::swap(this_t& obj) noexcept
+bool SDLEngine::UI::Sprite::checkCollide(const SDL_Rect& rect) const
 {
-  std::swap(texture_, obj.texture_);
-  std::swap(texture_rect_, obj.texture_rect_);
-  std::swap(collide_rect_, obj.collide_rect_);
-  std::swap(scale_, obj.scale_);
-  std::swap(x_, obj.x_);
-  std::swap(y_, obj.y_);
+  return SDL_IntersectRect(std::addressof(collide_rect_), std::addressof(rect), NULL);
+}
+
+bool SDLEngine::UI::Sprite::checkCollide(const this_t& obj) const
+{
+  return checkCollide(obj.collide_rect_);
+}
+
+void SDLEngine::UI::Sprite::correctCoordinates()
+{
+  int offset_x = x_ - texture_.rect_.x;
+  int offset_y = y_ - texture_.rect_.y;
+
+  texture_.rect_.x += offset_x;
+  texture_.rect_.y += offset_y;
+
+  collide_rect_.x += offset_x;
+  collide_rect_.y += offset_y;
 }
