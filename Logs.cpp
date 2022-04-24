@@ -6,12 +6,12 @@
 #define YELLOW "\033[1;33m"
 #define WHITE "\033[1;37m"
 
-void SDLEngine::Logs::print(const std::string& text, LogLevel level)
+void SDLEngine::Logs::print(const std::string& tag, const std::string& text, LogLevel level)
 {
-  Instance().doPrint(text, level);
+  Instance().doPrint(tag, text, level);
 }
 
-void SDLEngine::Logs::doPrint(const std::string& text, LogLevel level)
+void SDLEngine::Logs::doPrint(const std::string& tag, const std::string& text, LogLevel level)
 {
   if (!ostream)
   {
@@ -32,5 +32,6 @@ void SDLEngine::Logs::doPrint(const std::string& text, LogLevel level)
   default:
     break;
   }
+  ostream << '[' << std::setw(10) << tag << "] ";
   ostream << std::setw(100) << text << RESET << "\n";
 }

@@ -16,7 +16,7 @@
 
 void print_sdlerror()
 {
-  SDLEngine::Logs::print("ERROR [EngineSDL]: " + std::string(SDL_GetError()), SDLEngine::LogLevel::ERROR);
+  SDLEngine::Logs::print("EngineSDL", SDL_GetError(), SDLEngine::LogLevel::ERROR);
 }
 
 namespace
@@ -37,11 +37,11 @@ namespace
     {
       if (SDLEngine::Assets::Instance().checkAndSaveTextures(renderer, asset_name.first, asset_name.second))
       {
-        SDLEngine::Logs::print("[Textures] Loaded texture: " + asset_name.second, SDLEngine::LogLevel::INFO);
+        SDLEngine::Logs::print("Textures", "Loaded texture: " + asset_name.second, SDLEngine::LogLevel::INFO);
       }
       else
       {
-        SDLEngine::Logs::print("[Textures] Failed to load texture: " + asset_name.second, SDLEngine::LogLevel::ERROR);
+        SDLEngine::Logs::print("Textures", "Failed to load texture: " + asset_name.second, SDLEngine::LogLevel::ERROR);
         is_ok = false;
       }
     }
@@ -98,7 +98,7 @@ int main()
   if (SDL_Init(SDL_INIT_EVERYTHING) < 0 || TTF_Init() < 0)
   {
     print_sdlerror();
-    SDLEngine::Logs::print("Bad initialization!", SDLEngine::LogLevel::ERROR);
+    SDLEngine::Logs::print("SDL", "Bad initialization!", SDLEngine::LogLevel::ERROR);
     return 1;
   }
   SDL_Window* window = nullptr;

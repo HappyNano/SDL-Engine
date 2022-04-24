@@ -35,6 +35,7 @@ namespace SDLEngine
       void setHeight(int) override;
       void setX(int) override;
       void setY(int) override;
+      void move(int, int) override;
       void setRect(const SDL_Rect&) override;
 
       int getWidth() const override;

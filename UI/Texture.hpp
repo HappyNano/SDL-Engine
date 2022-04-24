@@ -22,6 +22,7 @@ namespace SDLEngine
       this_t& operator=(this_t&&) noexcept;
 
       void swap(this_t&) noexcept;
+      void move(int, int);
       void render(SDL_Renderer*);
 
       SDL_Texture* texture_;

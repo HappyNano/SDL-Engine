@@ -16,6 +16,7 @@ namespace SDLEngine
       virtual void setHeight(int) = 0;
       virtual void setX(int) = 0;
       virtual void setY(int) = 0;
+      virtual void move(int, int) = 0;
       virtual void setRect(const SDL_Rect&) = 0;
 
       virtual int getWidth() const = 0;

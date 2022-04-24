@@ -21,8 +21,8 @@ namespace SDLEngine
       return singleton;
     }
 
-    static void print(const std::string&, LogLevel);
-    void doPrint(const std::string&, LogLevel);
+    static void print(const std::string&, const std::string&, LogLevel);
+    void doPrint(const std::string&, const std::string&, LogLevel);
 
     std::ostream& ostream;
     bool colored;

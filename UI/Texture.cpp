@@ -1,6 +1,7 @@
 #include "Texture.hpp"
 #include <iostream>
 #include <utility>
+#include "SDLMethods.hpp"
 
 SDLEngine::UI::Texture::Texture(SDL_Texture* texture, const SDL_Rect& rect):
   texture_(texture),
@@ -45,6 +46,11 @@ void SDLEngine::UI::Texture::swap(this_t& obj) noexcept
 {
   std::swap(texture_, obj.texture_);
   std::swap(rect_, obj.rect_);
+}
+
+void SDLEngine::UI::Texture::move(int offset_x, int offset_y)
+{
+  rect_ += {offset_x, offset_y};
 }
 
 void SDLEngine::UI::Texture::render(SDL_Renderer* renderer)
