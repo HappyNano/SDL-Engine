@@ -16,6 +16,14 @@ SDLEngine::UI::Texture::Texture(SDL_Texture* texture):
   SDL_QueryTexture(texture, NULL, NULL, &rect_.w, &rect_.h);
 }
 
+SDLEngine::UI::Texture::Texture(SDL_Renderer* renderer, SDL_Surface* surf):
+  Texture(SDL_CreateTextureFromSurface(renderer, surf), {0, 0, surf->w, surf->h})
+{}
+
+SDLEngine::UI::Texture::Texture(SDL_Renderer* renderer, Surface&& surf):
+  Texture(surf.createTexture(renderer), surf.getRect())
+{}
+
 SDLEngine::UI::Texture::Texture(this_t&& obj) noexcept:
   texture_(obj.texture_),
   rect_(obj.rect_)

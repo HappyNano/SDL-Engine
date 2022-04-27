@@ -6,6 +6,7 @@
 #include <string>
 #include <vector>
 #include "Texture.hpp"
+#include "Font.hpp"
 #include "UIElements.hpp"
 
 namespace SDLEngine
@@ -25,11 +26,12 @@ namespace SDLEngine
       rightBottom,   // Правый нижний угол
       none // Нет центровки никакой (Текст будет слева сверху и не будет подгоняться по размерам)
     };
-    class TextBox: public UIElements
+    class STextBox: public UIElements
     {
+
     public:
-      TextBox(const std::wstring&, const SDL_Rect&);
-      ~TextBox();
+      STextBox(const std::wstring&, const SDL_Rect&, Font&&);
+      virtual ~STextBox();
 
       void setWidth(int) override;
       void setHeight(int) override;
@@ -49,22 +51,22 @@ namespace SDLEngine
       void render(SDL_Renderer*) override;
 
     protected:
-      TextBox();
-
-    private:
       std::wstring text_;
 
       Wrapping wrapping_;
-      size_t font_size_;
-      TTF_Font* font_;
-      SDL_Color font_color_;
-      std::vector< Texture > text_textures_;
+      Font font_;
+      std::vector< Surface > text_textures_;
 
       SDL_Rect rect_;
 
       void clearTextTextures();
-      void reRenderTextTextures();
+      void reCreateTextTextures();
+      void addText(const std::wstring&);
     };
+    // class TextBox: public STextBox
+    // {
+
+    // };
   }
 }
 
