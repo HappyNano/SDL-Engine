@@ -4,4 +4,5 @@ SDL_Rect& SDLEngine::operator+=(SDL_Rect& rect, const std::pair< int, int >& off
 {
   rect.x += offset.first;
   rect.y += offset.second;
+  return rect;
 }

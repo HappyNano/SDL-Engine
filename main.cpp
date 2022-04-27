@@ -30,7 +30,7 @@ namespace
         {"house_sunset", "assets/dom_z.png"},
         {"house_common", "assets/dom.png"},
         {"background_sunset", "assets/Zakat.png"},
-        //  {"test_texture", "assets/test.png"}
+        //  {"test_texture", "assets/test.png"} 
     });
 
     for (auto&& asset_name: assets_names)

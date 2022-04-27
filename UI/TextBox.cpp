@@ -6,10 +6,32 @@
 
 #include "SDLMethods.hpp"
 
-SDLEngine::UI::TextBox::TextBox(const std::wstring& text, const SDL_Rect& rect):
-  text_(text),
-  rect_(rect)
+namespace
+{
+  // int get_textWidth(const std::wstring& text, TTF_Font* font)
+  // {
+  //   int w = 0, h = 0;
+  //   TTF_SizeUNICODE(font, reinterpret_cast< const Uint16* >(text.c_str()), &w, &h);
+  //   return w;
+  // }
+}
+
+SDLEngine::UI::TextBox::TextBox():
+  text_(L""),
+  wrapping_(SDLEngine::UI::Wrapping::none),
+  font_size_(14),
+  font_(nullptr),
+  font_color_({0, 0, 0, 255}),
+  text_textures_(),
+  rect_()
 {}
+
+SDLEngine::UI::TextBox::TextBox(const std::wstring& text, const SDL_Rect& rect):
+  TextBox()
+{
+  text_ = text;
+  rect_ = rect;
+}
 
 SDLEngine::UI::TextBox::~TextBox()
 {

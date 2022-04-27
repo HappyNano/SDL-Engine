@@ -48,11 +48,14 @@ namespace SDLEngine
 
       void render(SDL_Renderer*) override;
 
+    protected:
+      TextBox();
+
     private:
       std::wstring text_;
 
       Wrapping wrapping_;
-      size_t font_size;
+      size_t font_size_;
       TTF_Font* font_;
       SDL_Color font_color_;
       std::vector< Texture > text_textures_;

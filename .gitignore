@@ -8,5 +8,4 @@ SDL2
 .clang-format
 **/*.supp
 **/*.sh
-**/Makefile
 out
