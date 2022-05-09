@@ -41,14 +41,42 @@ SDLEngine::UI::Font::~Font()
 //   SDL_RenderCopy(renderer, texture_, NULL, &rect_);
 // }
 
-SDL_Surface* SDLEngine::UI::Font::renderSolidText(const std::wstring& text)
+SDL_Surface* SDLEngine::UI::Font::renderSolidText(const std::string& text) const
+{
+  return TTF_RenderText_Solid(font_, text.c_str(), color_);
+}
+
+SDL_Surface* SDLEngine::UI::Font::renderSolidText(const std::wstring& text) const
 {
   return TTF_RenderUNICODE_Solid(font_, reinterpret_cast< const Uint16* >(text.c_str()), color_);
 }
 
-int SDLEngine::UI::Font::getTextWidth(const std::wstring& text)
+int SDLEngine::UI::Font::getTextWidth(const std::string& text) const
 {
-  int w = 0, h = 0;
-  TTF_SizeUNICODE(this->font_, reinterpret_cast< const Uint16* >(text.c_str()), &w, &h);
-  return w;
+  return getTextRect(text).w;
+}
+int SDLEngine::UI::Font::getTextHeight(const std::string& text) const
+{
+  return getTextRect(text).h;
+}
+SDL_Rect SDLEngine::UI::Font::getTextRect(const std::string& text) const
+{
+  SDL_Rect rect{0, 0, 0, 0};
+  TTF_SizeText(this->font_, text.c_str(), std::addressof(rect.w), std::addressof(rect.h));
+  return rect;
+}
+
+int SDLEngine::UI::Font::getTextWidth(const std::wstring& text) const
+{
+  return getTextRect(text).w;
+}
+int SDLEngine::UI::Font::getTextHeight(const std::wstring& text) const
+{
+  return getTextRect(text).h;
+}
+SDL_Rect SDLEngine::UI::Font::getTextRect(const std::wstring& text) const
+{
+  SDL_Rect rect{0, 0, 0, 0};
+  TTF_SizeUNICODE(this->font_, reinterpret_cast< const Uint16* >(text.c_str()), std::addressof(rect.w), std::addressof(rect.h));
+  return rect;
 }

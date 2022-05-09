@@ -15,7 +15,7 @@ HEADERS := $(wildcard *.h) $(wildcard UI/*.h) $(wildcard *.hpp) $(wildcard UI/*.
 BUILD_HEADERS := $(addprefix $(BUILD_FOLDER)/, $(HEADERS))
 BUILD_HEADERS_CHECK := $(addsuffix .header, $(BUILD_HEADERS))
 
-own_include := UI/
+own_include := UI/ .
 sdl_include := $(shell sdl2-config --cflags --libs) -lSDL2_image -lSDL2_ttf
 include := $(addprefix -I, $(own_include)) $(sdl_include)
 

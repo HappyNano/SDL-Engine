@@ -2,53 +2,114 @@
 #include <SDL2/SDL_ttf.h>
 #include <SDL2/SDL_image.h>
 
+#include <functional>
 #include <algorithm>
+#include <numeric>
 
 #include "SDLMethods.hpp"
+
+#include "Logs.hpp"
+
+namespace
+{
+  struct Word
+  {
+    Word(const std::wstring& str, const SDLEngine::UI::Font& font):
+      text_(str),
+      width_(font.getTextWidth(str)),
+      height_(font.getTextHeight(str))
+    {}
+
+    const std::wstring& getWord() const
+    {
+      return text_;
+    }
+    int getWidth() const
+    {
+      return width_;
+    }
+    int getHeight() const
+    {
+      return height_;
+    }
+
+  private:
+    std::wstring text_;
+    int width_;
+    int height_;
+  };
+
+  using words_t = std::vector< Word >;
+  words_t splitTextToWords(std::wstring str, const SDLEngine::UI::Font& font)
+  {
+    words_t words;
+    size_t next_space = str.find_first_of(' ');
+    while (next_space != str.npos)
+    {
+      words.emplace_back(str.substr(0, next_space), font);
+      str.erase(0, next_space + 1);
+      next_space = str.find_first_of(' ');
+    }
+    if (!str.empty())
+    {
+      words.emplace_back(str, font);
+    }
+    return words;
+  }
+  words_t splitWordByWidth(std::wstring str, const SDLEngine::UI::Font& font, int width)
+  {
+    words_t words;
+    while (!str.empty())
+    {
+      size_t word_size = 0;
+      for (; word_size < str.size(); ++word_size)
+      {
+        if (font.getTextWidth(str.substr(0, word_size)) > width)
+        {
+          --word_size;
+          break;
+        }
+      }
+      words.emplace_back(str.substr(0, word_size), font);
+      str.erase(0, word_size);
+    }
+    return words;
+  }
+  int getSumWidth(const words_t& words)
+  {
+    return std::accumulate(words.begin(), words.end(), 0, [](int result, const Word& word) {
+      return result + word.getWidth();
+    });
+  }
+}
 
 SDLEngine::UI::STextBox::STextBox(const std::wstring& text, const SDL_Rect& rect, Font&& font):
   text_(text),
   wrapping_(SDLEngine::UI::Wrapping::none),
   font_(std::move(font)),
-  text_textures_(),
+  text_surfaces_(),
   rect_(rect)
 {}
 
 SDLEngine::UI::STextBox::~STextBox()
 {
-  clearTextTextures();
+  clearTextSurfaces();
 }
 
 void SDLEngine::UI::STextBox::setWidth(int width)
 {
   rect_.w = width;
-  reRenderTextTextures();
+  doReCreateTextTextures();
 }
 void SDLEngine::UI::STextBox::setHeight(int heigth)
 {
   rect_.h = heigth;
-  reRenderTextTextures();
-}
-void SDLEngine::UI::STextBox::setX(int x)
-{
-  move(x - rect_.x, 0);
-}
-void SDLEngine::UI::STextBox::setY(int y)
-{
-  move(0, y - rect_.y);
-}
-void SDLEngine::UI::STextBox::move(int offset_x, int offset_y)
-{
-  for (auto&& texture: text_textures_)
-  {
-    texture.move(offset_x, offset_y);
-  }
-  rect_ += {offset_x, offset_y};
+  doReCreateTextTextures();
 }
 void SDLEngine::UI::STextBox::setRect(const SDL_Rect& rect)
 {
   rect_ = rect;
-  reRenderTextTextures();
+  doReCreateTextTextures();
 }
 
 int SDLEngine::UI::STextBox::getWidth() const
@@ -72,22 +133,9 @@ const SDL_Rect& SDLEngine::UI::STextBox::getRect() const
   return rect_;
 }
 
-void SDLEngine::UI::STextBox::handleEvent(const SDL_Event&)
+void SDLEngine::UI::STextBox::clearTextSurfaces()
 {
-  // Nothing...
-}
-
-void SDLEngine::UI::STextBox::render(SDL_Renderer* renderer)
-{
-  for (auto&& texture: text_textures_)
-  {
-    texture.render(renderer);
-  }
-}
-
-void SDLEngine::UI::STextBox::clearTextTextures()
-{
-  text_textures_.clear();
+  text_surfaces_.clear();
 }
 
 void SDLEngine::UI::STextBox::addText(const std::wstring& text)
@@ -95,78 +143,66 @@ void SDLEngine::UI::STextBox::addText(const std::wstring& text)
   SDL_Surface* textSurface = font_.renderSolidText(text);
   if (textSurface)
   {
-    textures_.push_back({renderer, textSurface});
-    SDL_FreeSurface(textSurface);
+    text_surfaces_.push_back(textSurface);
   }
+  else
+  {
+    Logs::print("TextBox", "Failed to render text!", LogLevel::ERROR);
+  }
+}
+
+void SDLEngine::UI::STextBox::doReCreateTextTextures()
+{
+  reCreateTextTextures();
 }
 
 void SDLEngine::UI::STextBox::reCreateTextTextures()
 {
-  if (text_.empty() || !width_)
-    return;
-
-  if (height_ && !width_)
+  if (text_.empty())
   {
-    SDL_Surface* textSurface = font_.renderSolidText(text_);
-    if (textSurface == nullptr)
-    {
-      printf("textSurface = nullptr!\n");
-      return;
-    }
-    // GameEngine::DrawRectangle(textSurface, 0, 0, textSurface->w, textSurface->h,
-    // SDL_MapRGBA(textSurface->format, 255, 225, 255, 255));
-    this->text_textures_.push_back(SDL_CreateTextureFromSurface(renderer_, textSurface));
-    this->text_rects_.push_back(new SDL_Rect({0, 0, textSurface->w, textSurface->h}));
-    SDL_FreeSurface(textSurface);
+    return;
+  }
+
+  if (getHeight() && !getWidth())
+  {
+    addText(text_);
   }
   else
   {
     /* ===== Разбиение текста ===== */
-
-    int max_width = rect_.w - padding_[1] - padding_[3];
-
-    int lastBreaker = -1;
-    while (lastBreaker < (int)text_.size())
+    Word wh(L" ", font_);
+    std::vector< Word > words = splitTextToWords(text_, font_);
+    std::vector< Word > line_words;
+    while (!words.empty())
     {
-      size_t nextBreaker = text_.find_first_of('\n', lastBreaker + 1);
-      nextBreaker = nextBreaker == text_.npos ? text_.size() : nextBreaker;
-
-      std::wstring text_line = L"";
-      size_t lastSpace = lastBreaker + 1;
-      while (lastSpace < nextBreaker)
+      Word next_word = words.front();
+      if (getSumWidth(line_words) + next_word.getWidth() + wh.getWidth() > this->getWidth())
       {
-        size_t nextSpace = text_.find_first_of(' ', lastSpace + 1);
-        nextSpace = nextSpace == text_.npos ? text_.size() : nextSpace;
-        nextSpace = nextSpace > nextBreaker ? nextBreaker : nextSpace;
-
-        std::wstring word = text_.substr(lastSpace, nextSpace - lastSpace);
-
-        if (get_textWidth(word, font_) > max_width)
+        if (!line_words.empty())
         {
-          addText(text_line.c_str(), text_textures_, text_rects_, font_, font_color_, renderer_);
-          text_line = L"";
-          size_t word_size = 0;
-          for (word_size = 1; word_size < word.size() && get_textWidth(word.substr(0, word_size), font_) < max_width; word_size++)
-            ;
-          word_size = std::max(word_size - 1, 1ull);
-          addText(word.substr(0, word_size).c_str(), text_textures_, text_rects_, font_, font_color_, renderer_);
-          lastSpace += word_size;
-          continue;
-        }
-        if (get_textWidth(text_line + word, font_) > max_width)
-        {
-          addText(text_line.c_str(), text_textures_, text_rects_, font_, font_color_, renderer_);
-          text_line = L"";
-          continue;
+          addText(std::accumulate(line_words.begin(), line_words.end(), std::wstring(L""), [](std::wstring r, const Word& w) {
+            return r + w.getWord();
+          }));
         }
         else
         {
-          text_line += word;
+          words.erase(words.begin());
+          std::vector< Word > splitted_words = splitWordByWidth(next_word.getWord(), font_, this->getWidth());
+          line_words.push_back(splitted_words.at(0));
+          splitted_words.erase(splitted_words.begin());
+          auto insert_iter = words.begin();
+          for (auto&& new_word: splitted_words)
+          {
+            words.insert(insert_iter, new_word);
+          }
         }
-        lastSpace = nextSpace;
       }
-      addText(text_line.c_str(), text_textures_, text_rects_, font_, font_color_, renderer_);
-      lastBreaker = nextBreaker;
+      else
+      {
+        words.erase(words.begin());
+        line_words.push_back(next_word);
+        line_words.push_back(wh);
+      }
     }
   }
 }

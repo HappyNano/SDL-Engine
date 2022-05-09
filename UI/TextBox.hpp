@@ -35,9 +35,9 @@ namespace SDLEngine
 
       void setWidth(int) override;
       void setHeight(int) override;
-      void setX(int) override;
-      void setY(int) override;
-      void move(int, int) override;
+      virtual void setX(int) = 0;
+      virtual void setY(int) = 0;
+      virtual void move(int, int) = 0;
       void setRect(const SDL_Rect&) override;
 
       int getWidth() const override;
@@ -46,21 +46,22 @@ namespace SDLEngine
       int getY() const override;
       const SDL_Rect& getRect() const override;
 
-      void handleEvent(const SDL_Event&) override;
+      virtual void handleEvent(const SDL_Event&) = 0;
 
-      void render(SDL_Renderer*) override;
+      virtual void render(SDL_Renderer*) = 0;
 
     protected:
       std::wstring text_;
 
       Wrapping wrapping_;
       Font font_;
-      std::vector< Surface > text_textures_;
+      std::vector< Surface > text_surfaces_;
 
       SDL_Rect rect_;
 
-      void clearTextTextures();
+      void clearTextSurfaces();
       void reCreateTextTextures();
+      virtual void doReCreateTextTextures();
       void addText(const std::wstring&);
     };
     // class TextBox: public STextBox
