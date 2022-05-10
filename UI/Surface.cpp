@@ -7,12 +7,33 @@ SDLEngine::UI::Surface::Surface(SDL_Surface* surface):
   surface_(surface)
 {}
 
+SDLEngine::UI::Surface::Surface(this_t&& obj) noexcept:
+  surface_(obj.surface_)
+{
+  obj.surface_ = nullptr;
+}
+
 SDLEngine::UI::Surface::~Surface()
 {
   if (surface_)
   {
     SDL_FreeSurface(surface_);
   }
+}
+
+SDLEngine::UI::Surface::this_t& SDLEngine::UI::Surface::operator=(this_t&& obj) noexcept
+{
+  if (std::addressof(obj) != this)
+  {
+    this_t temp(std::move(obj));
+    swap(temp);
+  }
+  return *this;
+}
+
+void SDLEngine::UI::Surface::swap(this_t& obj) noexcept
+{
+  std::swap(surface_, obj.surface_);
 }
 
 SDL_Texture* SDLEngine::UI::Surface::createTexture(SDL_Renderer* renderer)

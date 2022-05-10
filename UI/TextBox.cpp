@@ -7,20 +7,19 @@
 #include <numeric>
 
 #include "SDLMethods.hpp"
-
 #include "Logs.hpp"
 
 namespace
 {
   struct Word
   {
-    Word(const std::wstring& str, const SDLEngine::UI::Font& font):
+    Word(const std::u16string& str, const SDLEngine::UI::Font& font):
       text_(str),
       width_(font.getTextWidth(str)),
       height_(font.getTextHeight(str))
     {}
 
-    const std::wstring& getWord() const
+    const std::u16string& getWord() const
     {
       return text_;
     }
@@ -34,13 +33,13 @@ namespace
     }
 
   private:
-    std::wstring text_;
+    std::u16string text_;
     int width_;
     int height_;
   };
 
   using words_t = std::vector< Word >;
-  words_t splitTextToWords(std::wstring str, const SDLEngine::UI::Font& font)
+  words_t splitTextToWords(std::u16string str, const SDLEngine::UI::Font& font)
   {
     words_t words;
     size_t next_space = str.find_first_of(' ');
@@ -56,7 +55,7 @@ namespace
     }
     return words;
   }
-  words_t splitWordByWidth(std::wstring str, const SDLEngine::UI::Font& font, int width)
+  words_t splitWordByWidth(std::u16string str, const SDLEngine::UI::Font& font, int width)
   {
     words_t words;
     while (!str.empty())
@@ -83,62 +82,71 @@ namespace
   }
 }
 
-SDLEngine::UI::STextBox::STextBox(const std::wstring& text, const SDL_Rect& rect, Font&& font):
+SDLEngine::UI::TextBoxBase::TextBoxBase(const std::u16string& text, const SDL_Rect& rect, Font&& font):
   text_(text),
-  wrapping_(SDLEngine::UI::Wrapping::none),
   font_(std::move(font)),
   text_surfaces_(),
   rect_(rect)
-{}
+{
+  doReCreateTextTextures();
+}
 
-SDLEngine::UI::STextBox::~STextBox()
+SDLEngine::UI::TextBoxBase::~TextBoxBase()
 {
   clearTextSurfaces();
 }
 
-void SDLEngine::UI::STextBox::setWidth(int width)
+void SDLEngine::UI::TextBoxBase::setWidth(int width)
 {
   rect_.w = width;
   doReCreateTextTextures();
 }
-void SDLEngine::UI::STextBox::setHeight(int heigth)
+void SDLEngine::UI::TextBoxBase::setHeight(int heigth)
 {
   rect_.h = heigth;
   doReCreateTextTextures();
 }
-void SDLEngine::UI::STextBox::setRect(const SDL_Rect& rect)
+void SDLEngine::UI::TextBoxBase::setX(int x)
+{
+  move(x - getX(), 0);
+}
+void SDLEngine::UI::TextBoxBase::setY(int y)
+{
+  move(0, y - getY());
+}
+void SDLEngine::UI::TextBoxBase::setRect(const SDL_Rect& rect)
 {
   rect_ = rect;
   doReCreateTextTextures();
 }
 
-int SDLEngine::UI::STextBox::getWidth() const
+int SDLEngine::UI::TextBoxBase::getWidth() const
 {
   return rect_.w;
 }
-int SDLEngine::UI::STextBox::getHeight() const
+int SDLEngine::UI::TextBoxBase::getHeight() const
 {
   return rect_.h;
 }
-int SDLEngine::UI::STextBox::getX() const
+int SDLEngine::UI::TextBoxBase::getX() const
 {
   return rect_.x;
 }
-int SDLEngine::UI::STextBox::getY() const
+int SDLEngine::UI::TextBoxBase::getY() const
 {
   return rect_.y;
 }
-const SDL_Rect& SDLEngine::UI::STextBox::getRect() const
+const SDL_Rect& SDLEngine::UI::TextBoxBase::getRect() const
 {
   return rect_;
 }
 
-void SDLEngine::UI::STextBox::clearTextSurfaces()
+void SDLEngine::UI::TextBoxBase::clearTextSurfaces()
 {
   text_surfaces_.clear();
 }
 
-void SDLEngine::UI::STextBox::addText(const std::wstring& text)
+void SDLEngine::UI::TextBoxBase::addText(const std::u16string& text)
 {
   SDL_Surface* textSurface = font_.renderSolidText(text);
   if (textSurface)
@@ -151,13 +159,15 @@ void SDLEngine::UI::STextBox::addText(const std::wstring& text)
   }
 }
 
-void SDLEngine::UI::STextBox::doReCreateTextTextures()
+void SDLEngine::UI::TextBoxBase::doReCreateTextTextures()
 {
-  reCreateTextTextures();
+  clearTextSurfaces();
+  reCreateTextSurfaces();
 }
 
-void SDLEngine::UI::STextBox::reCreateTextTextures()
+void SDLEngine::UI::TextBoxBase::reCreateTextSurfaces()
 {
+  clearTextSurfaces();
   if (text_.empty())
   {
     return;
@@ -170,7 +180,7 @@ void SDLEngine::UI::STextBox::reCreateTextTextures()
   else
   {
     /* ===== Разбиение текста ===== */
-    Word wh(L" ", font_);
+    Word wh(u" ", font_);
     std::vector< Word > words = splitTextToWords(text_, font_);
     std::vector< Word > line_words;
     while (!words.empty())
@@ -180,9 +190,10 @@ void SDLEngine::UI::STextBox::reCreateTextTextures()
       {
         if (!line_words.empty())
         {
-          addText(std::accumulate(line_words.begin(), line_words.end(), std::wstring(L""), [](std::wstring r, const Word& w) {
+          addText(std::accumulate(line_words.begin(), line_words.end(), std::u16string(u""), [](std::u16string r, const Word& w) {
             return r + w.getWord();
           }));
+          line_words.clear();
         }
         else
         {
@@ -204,5 +215,112 @@ void SDLEngine::UI::STextBox::reCreateTextTextures()
         line_words.push_back(wh);
       }
     }
+    if (!line_words.empty())
+    {
+      addText(std::accumulate(line_words.begin(), line_words.end(), std::u16string(u""), [](std::u16string r, const Word& w) {
+        return r + w.getWord();
+      }));
+    }
   }
+}
+
+SDLEngine::UI::TextBox::TextBox(const std::u16string& text, const SDL_Rect& rect, Font&& font, SDL_Renderer* renderer):
+  TextBoxBase(text, rect, std::move(font)),
+  padding_{0, 0, 0, 0},
+  indent_(3),
+  wrapping_(Wrapping::leftTop),
+  renderer_(renderer),
+  text_textures_()
+{
+  doReCreateTextTextures();
+}
+
+void SDLEngine::UI::TextBox::move(int offset_x, int offset_y)
+{
+  rect_ += {offset_x, offset_y};
+  for (auto&& texture: text_textures_)
+  {
+    texture.move(offset_x, offset_y);
+  }
+}
+void SDLEngine::UI::TextBox::handleEvent(const SDL_Event&)
+{}
+
+void SDLEngine::UI::TextBox::render(SDL_Renderer*)
+{
+  for (auto&& texture: text_textures_)
+  {
+    texture.render(renderer_);
+  }
+}
+
+void SDLEngine::UI::TextBox::clearTextTextures()
+{
+  text_textures_.clear();
+}
+
+void SDLEngine::UI::TextBox::reCreateTextTextures()
+{
+  clearTextTextures();
+  auto builder = std::bind(&Surface::createTexture, std::placeholders::_1, renderer_);
+  std::transform(text_surfaces_.begin(), text_surfaces_.end(), std::back_inserter(text_textures_), builder);
+
+  SDL_Rect rect = rect_;
+  rect.h = std::accumulate(text_textures_.begin(), text_textures_.end(), 0, [&](int result, const Texture& texture) {
+    return result + texture.rect_.h + indent_;
+  });
+  rect.h = rect.h - indent_ + padding_[0] + padding_[2]; // std::max(rect.h - indent_ + padding_[0] + padding_[2], height_);
+  // rect.w = std::max(rect.w, (int)width_);
+
+  SDL_Rect text_rect;
+  text_rect.x = rect.x + padding_[3];
+  text_rect.y = rect.y + padding_[0]; // Top Rigth Bottom Left
+  text_rect.w = rect.w - padding_[1] - padding_[3];
+  text_rect.h = rect.h - padding_[0] - padding_[2];
+
+  if (this->text_textures_.size() == 0)
+  {
+    rect_.w = rect.w;
+    rect_.h = rect.h;
+    return;
+  };
+
+  switch (wrapping_)
+  {
+  case Wrapping::leftEquator:
+    wrapLeftEquator(text_rect, text_textures_, indent_);
+    break;
+  case Wrapping::rightEquator:
+    wrapRightEquator(text_rect, text_textures_, indent_);
+    break;
+  case Wrapping::centerTop:
+    wrapCenterTop(text_rect, text_textures_, indent_);
+    break;
+  case Wrapping::centerBottom:
+    wrapCenterBottom(text_rect, text_textures_, indent_);
+    break;
+  case Wrapping::leftTop:
+    wrapLeftTop(text_rect, text_textures_, indent_);
+    break;
+  case Wrapping::leftBottom:
+    wrapLeftBottom(text_rect, text_textures_, indent_);
+    break;
+  case Wrapping::rightTop:
+    wrapRightTop(text_rect, text_textures_, indent_);
+    break;
+  case Wrapping::rightBottom:
+    wrapRightBottom(text_rect, text_textures_, indent_);
+    break;
+  case Wrapping::centerEquator:
+    wrapCenterEquator(text_rect, text_textures_, indent_);
+    break;
+  default:
+    break;
+  }
+}
+
+void SDLEngine::UI::TextBox::doReCreateTextTextures()
+{
+  reCreateTextSurfaces();
+  reCreateTextTextures();
 }

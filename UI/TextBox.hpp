@@ -8,35 +8,23 @@
 #include "Texture.hpp"
 #include "Font.hpp"
 #include "UIElements.hpp"
+#include "Wrapping.hpp"
 
 namespace SDLEngine
 {
   namespace UI
   {
-    enum class Wrapping
-    {
-      leftTop,       // Левый верхний угол
-      centerTop,     // Сверху по центру
-      rightTop,      // Правый верхний угол
-      leftEquator,   // Слева посередине
-      centerEquator, // По центру
-      rightEquator,  // Справа посередине
-      leftBottom,    // Левый нижний угол
-      centerBottom,  // Снизу по центру
-      rightBottom,   // Правый нижний угол
-      none // Нет центровки никакой (Текст будет слева сверху и не будет подгоняться по размерам)
-    };
-    class STextBox: public UIElements
+    class TextBoxBase: public UIElements
     {
 
     public:
-      STextBox(const std::wstring&, const SDL_Rect&, Font&&);
-      virtual ~STextBox();
+      TextBoxBase(const std::u16string&, const SDL_Rect&, Font&&);
+      virtual ~TextBoxBase();
 
       void setWidth(int) override;
       void setHeight(int) override;
-      virtual void setX(int) = 0;
-      virtual void setY(int) = 0;
+      virtual void setX(int) override;
+      virtual void setY(int) override;
       virtual void move(int, int) = 0;
       void setRect(const SDL_Rect&) override;
 
@@ -51,23 +39,40 @@ namespace SDLEngine
       virtual void render(SDL_Renderer*) = 0;
 
     protected:
-      std::wstring text_;
+      std::u16string text_;
 
-      Wrapping wrapping_;
       Font font_;
       std::vector< Surface > text_surfaces_;
 
       SDL_Rect rect_;
 
       void clearTextSurfaces();
-      void reCreateTextTextures();
+      void reCreateTextSurfaces();
       virtual void doReCreateTextTextures();
-      void addText(const std::wstring&);
+      void addText(const std::u16string&);
     };
-    // class TextBox: public STextBox
-    // {
+    class TextBox: public TextBoxBase
+    {
+    public:
+      TextBox(const std::u16string&, const SDL_Rect&, Font&&, SDL_Renderer*);
+      virtual ~TextBox() = default;
 
-    // };
+      void move(int, int) override;
+      virtual void handleEvent(const SDL_Event&) override;
+
+      virtual void render(SDL_Renderer*) override;
+
+    private:
+      int padding_[4];
+      int indent_;
+      Wrapping wrapping_;
+      SDL_Renderer* renderer_;
+      std::vector< Texture > text_textures_;
+
+      void clearTextTextures();
+      void reCreateTextTextures();
+      void doReCreateTextTextures() override;
+    };
   }
 }
 

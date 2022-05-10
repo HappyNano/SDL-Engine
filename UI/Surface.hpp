@@ -14,11 +14,13 @@ namespace SDLEngine
       Surface() = delete;
       Surface(SDL_Surface*);
       Surface(const this_t&) = delete;
-      Surface(this_t&&) noexcept = default;
+      Surface(this_t&&) noexcept;
       ~Surface();
 
       this_t& operator=(const this_t&) = delete;
-      this_t& operator=(this_t&&) noexcept = default;
+      this_t& operator=(this_t&&) noexcept;
+
+      void swap(this_t&) noexcept;
 
       SDL_Texture* createTexture(SDL_Renderer*);
       SDL_Rect getRect() const;

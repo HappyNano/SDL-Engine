@@ -11,6 +11,7 @@
 #include "UI/Geometry.hpp"
 #include "UI/Texture.hpp"
 #include "UI/Assets.hpp"
+#include "UI/TextBox.hpp"
 
 #include "Logs.hpp"
 
@@ -30,7 +31,7 @@ namespace
         {"house_sunset", "assets/dom_z.png"},
         {"house_common", "assets/dom.png"},
         {"background_sunset", "assets/Zakat.png"},
-        //  {"test_texture", "assets/test.png"} 
+        //  {"test_texture", "assets/test.png"}
     });
 
     for (auto&& asset_name: assets_names)
@@ -58,6 +59,10 @@ void handler(SDL_Renderer* renderer)
   SDLEngine::Logs::Instance(std::cout, false);
   SDLEngine::UI::Texture cloud_texture{SDLEngine::Assets::Instance().getTextureByName(renderer, "cloud_small")};
   SDLEngine::UI::Sprite cloud(std::move(cloud_texture));
+
+  SDLEngine::UI::Font f(TTF_OpenFont("assets/ff.ttf", 20), 10, {255, 0, 0, 255});
+  SDLEngine::UI::TextBox tb(u"345 test1 привет test3 тест4 test5 тест6 test7 тест8 test9", SDL_Rect{0, 0, 200, 200}, std::move(f),
+                            renderer);
 
   bool stopped = false;
   while (!stopped)
@@ -87,6 +92,7 @@ void handler(SDL_Renderer* renderer)
 
     // SDL_RenderCopy(renderer, texture, NULL, &texture_rect);
     cloud.render(renderer);
+    tb.render(renderer);
     // SDL_RenderCopy(renderer, rounded_texture, NULL, &rounded_rect);
 
     SDL_RenderPresent(renderer);
@@ -101,6 +107,7 @@ int main()
     SDLEngine::Logs::print("SDL", "Bad initialization!", SDLEngine::LogLevel::ERROR);
     return 1;
   }
+
   SDL_Window* window = nullptr;
   SDL_Renderer* renderer = nullptr;
 

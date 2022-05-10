@@ -17,22 +17,24 @@ namespace SDLEngine
       Font(TTF_Font*, size_t, SDL_Color);
       Font(TTF_Font*);
       Font(const this_t&) = delete;
-      Font(this_t&&) noexcept = default;
+      Font(this_t&&) noexcept;
       ~Font();
 
       this_t& operator=(const this_t&) = delete;
-      this_t& operator=(this_t&&) noexcept = default;
+      this_t& operator=(this_t&&) noexcept;
+
+      void swap(this_t&) noexcept;
 
       SDL_Surface* renderSolidText(const std::string&) const;
-      SDL_Surface* renderSolidText(const std::wstring&) const;
+      SDL_Surface* renderSolidText(const std::u16string&) const;
 
       int getTextWidth(const std::string&) const;
       int getTextHeight(const std::string&) const;
       SDL_Rect getTextRect(const std::string&) const;
 
-      int getTextWidth(const std::wstring&) const;
-      int getTextHeight(const std::wstring&) const;
-      SDL_Rect getTextRect(const std::wstring&) const;
+      int getTextWidth(const std::u16string&) const;
+      int getTextHeight(const std::u16string&) const;
+      SDL_Rect getTextRect(const std::u16string&) const;
 
       size_t size_;
       SDL_Color color_;
