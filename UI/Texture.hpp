@@ -12,7 +12,7 @@ namespace SDLEngine
     {
       using this_t = Texture;
 
-      Texture() = delete;
+      Texture();
       Texture(SDL_Texture*, const SDL_Rect&);
       Texture(SDL_Texture*);
       Texture(SDL_Renderer*, SDL_Surface*);
@@ -27,6 +27,8 @@ namespace SDLEngine
       void swap(this_t&) noexcept;
       void move(int, int);
       void render(SDL_Renderer*);
+
+      bool valid() const;
 
       SDL_Texture* texture_;
       SDL_Rect rect_;

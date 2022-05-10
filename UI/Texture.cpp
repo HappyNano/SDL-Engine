@@ -1,7 +1,12 @@
 #include "Texture.hpp"
-#include <iostream>
 #include <utility>
 #include "SDLMethods.hpp"
+#include "Logs.hpp"
+
+SDLEngine::UI::Texture::Texture():
+  texture_(nullptr),
+  rect_()
+{}
 
 SDLEngine::UI::Texture::Texture(SDL_Texture* texture, const SDL_Rect& rect):
   texture_(texture),
@@ -65,8 +70,13 @@ void SDLEngine::UI::Texture::render(SDL_Renderer* renderer)
 {
   if (!texture_)
   {
-    std::cerr << "ERROR [EngineSDL][Texture]: texture is nullptr" << std::endl;
+    Logs::print("Texture", "This texture cannot be rendered!", LogLevel::ERROR);
     return;
   }
   SDL_RenderCopy(renderer, texture_, NULL, &rect_);
+}
+
+bool SDLEngine::UI::Texture::valid() const
+{
+  return texture_;
 }

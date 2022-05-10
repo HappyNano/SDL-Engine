@@ -23,11 +23,7 @@ void SDLEngine::UI::DrawCircle(SDL_Surface* surface, int32_t centreX, int32_t ce
 
 void SDLEngine::UI::DrawRectangle(SDL_Surface* surface, int32_t x, int32_t y, int32_t w, int32_t h, Uint32 color)
 {
-  SDL_Rect rect;
-  rect.x = x;
-  rect.y = y;
-  rect.w = w;
-  rect.h = h;
+  SDL_Rect rect{x, y, w, h};
 
   SDL_FillRect(surface, &rect, color);
 }

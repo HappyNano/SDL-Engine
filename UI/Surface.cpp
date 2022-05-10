@@ -2,6 +2,11 @@
 #include <iostream>
 #include <utility>
 #include "SDLMethods.hpp"
+#include "Logs.hpp"
+
+SDLEngine::UI::Surface::Surface():
+  surface_(nullptr)
+{}
 
 SDLEngine::UI::Surface::Surface(SDL_Surface* surface):
   surface_(surface)
@@ -38,10 +43,19 @@ void SDLEngine::UI::Surface::swap(this_t& obj) noexcept
 
 SDL_Texture* SDLEngine::UI::Surface::createTexture(SDL_Renderer* renderer)
 {
+  if (!surface_)
+  {
+    Logs::print("Surface", "Texture cannot be crated from this surface!", LogLevel::ERROR);
+  }
   return SDL_CreateTextureFromSurface(renderer, surface_);
 }
 
 SDL_Rect SDLEngine::UI::Surface::getRect() const
 {
   return {0, 0, surface_->w, surface_->h};
+}
+
+bool SDLEngine::UI::Surface::valid() const
+{
+  return surface_;
 }

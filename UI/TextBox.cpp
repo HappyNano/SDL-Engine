@@ -74,6 +74,12 @@ namespace
     }
     return words;
   }
+  std::u16string getSumText(const words_t& words)
+  {
+    return std::accumulate(words.begin(), words.end(), std::u16string(u""), [](std::u16string r, const Word& w) {
+      return r + w.getWord();
+    });
+  }
   int getSumWidth(const words_t& words)
   {
     return std::accumulate(words.begin(), words.end(), 0, [](int result, const Word& word) {
@@ -122,19 +128,19 @@ void SDLEngine::UI::TextBoxBase::setRect(const SDL_Rect& rect)
 
 int SDLEngine::UI::TextBoxBase::getWidth() const
 {
-  return rect_.w;
+  return getRect().w;
 }
 int SDLEngine::UI::TextBoxBase::getHeight() const
 {
-  return rect_.h;
+  return getRect().h;
 }
 int SDLEngine::UI::TextBoxBase::getX() const
 {
-  return rect_.x;
+  return getRect().x;
 }
 int SDLEngine::UI::TextBoxBase::getY() const
 {
-  return rect_.y;
+  return getRect().y;
 }
 const SDL_Rect& SDLEngine::UI::TextBoxBase::getRect() const
 {
@@ -190,9 +196,7 @@ void SDLEngine::UI::TextBoxBase::reCreateTextSurfaces()
       {
         if (!line_words.empty())
         {
-          addText(std::accumulate(line_words.begin(), line_words.end(), std::u16string(u""), [](std::u16string r, const Word& w) {
-            return r + w.getWord();
-          }));
+          addText(getSumText(line_words));
           line_words.clear();
         }
         else
@@ -204,7 +208,7 @@ void SDLEngine::UI::TextBoxBase::reCreateTextSurfaces()
           auto insert_iter = words.begin();
           for (auto&& new_word: splitted_words)
           {
-            words.insert(insert_iter, new_word);
+            words.insert(insert_iter++, new_word);
           }
         }
       }
@@ -217,9 +221,7 @@ void SDLEngine::UI::TextBoxBase::reCreateTextSurfaces()
     }
     if (!line_words.empty())
     {
-      addText(std::accumulate(line_words.begin(), line_words.end(), std::u16string(u""), [](std::u16string r, const Word& w) {
-        return r + w.getWord();
-      }));
+      addText(getSumText(line_words));
     }
   }
 }
@@ -248,10 +250,7 @@ void SDLEngine::UI::TextBox::handleEvent(const SDL_Event&)
 
 void SDLEngine::UI::TextBox::render(SDL_Renderer*)
 {
-  for (auto&& texture: text_textures_)
-  {
-    texture.render(renderer_);
-  }
+  std::for_each(text_textures_.begin(), text_textures_.end(), std::bind(&Texture::render, std::placeholders::_1, renderer_));
 }
 
 void SDLEngine::UI::TextBox::clearTextTextures()
