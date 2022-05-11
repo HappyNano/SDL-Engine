@@ -14,7 +14,7 @@ namespace SDLEngine
       using this_t = Font;
 
       Font() = delete;
-      Font(TTF_Font*, size_t, SDL_Color);
+      Font(TTF_Font*, SDL_Color);
       Font(TTF_Font*);
       Font(const this_t&) = delete;
       Font(this_t&&) noexcept;
@@ -36,7 +36,6 @@ namespace SDLEngine
       int getTextHeight(const std::u16string&) const;
       SDL_Rect getTextRect(const std::u16string&) const;
 
-      size_t size_;
       SDL_Color color_;
       TTF_Font* font_;
     };

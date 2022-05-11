@@ -16,7 +16,6 @@ namespace SDLEngine
   {
     class TextBoxBase: public UIElements
     {
-
     public:
       TextBoxBase(const std::u16string&, const SDL_Rect&, Font&&);
       virtual ~TextBoxBase();
@@ -27,6 +26,7 @@ namespace SDLEngine
       virtual void setY(int) override;
       virtual void move(int, int) = 0;
       void setRect(const SDL_Rect&) override;
+      void setText(const std::u16string&);
 
       int getWidth() const override;
       int getHeight() const override;
@@ -51,10 +51,11 @@ namespace SDLEngine
       virtual void doReCreateTextTextures();
       void addText(const std::u16string&);
     };
+
     class TextBox: public TextBoxBase
     {
     public:
-      TextBox(const std::u16string&, const SDL_Rect&, Font&&, SDL_Renderer*);
+      TextBox(const std::u16string&, const SDL_Rect&, Font&&);
       virtual ~TextBox() = default;
 
       void move(int, int) override;
@@ -66,11 +67,10 @@ namespace SDLEngine
       int padding_[4];
       int indent_;
       Wrapping wrapping_;
-      SDL_Renderer* renderer_;
       std::vector< Texture > text_textures_;
 
       void clearTextTextures();
-      void reCreateTextTextures();
+      void reCreateTextTextures(SDL_Renderer*);
       void doReCreateTextTextures() override;
     };
   }

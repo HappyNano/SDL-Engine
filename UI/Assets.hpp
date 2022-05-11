@@ -2,6 +2,8 @@
 #define SDL_ENGINE_ASSETS_HPP
 
 #include <SDL2/SDL.h>
+#include <SDL2/SDL_ttf.h>
+
 #include <string>
 #include <map>
 
@@ -15,12 +17,15 @@ namespace SDLEngine
       static Assets singleton;
       return singleton;
     }
-    
+
     bool checkAndSaveTextures(SDL_Renderer*, const std::string&, const std::string&);
+    bool checkAndSaveFonts(const std::string&, const std::string&, int);
     SDL_Texture* getTextureByName(SDL_Renderer*, const std::string&);
+    TTF_Font* getFontByName(const std::string&, int);
 
     static SDL_Texture* LoadBMP(SDL_Renderer* renderer, const char* filename);
     static SDL_Texture* LoadPNG(SDL_Renderer* renderer, const char* filename);
+    static TTF_Font* LoadFont(const char* filename, int size);
 
   private:
     Assets() = default;

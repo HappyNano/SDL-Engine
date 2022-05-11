@@ -3,6 +3,8 @@
 #include <SDL2/SDL_ttf.h>
 
 #include <iostream>
+#include <locale>
+#include <codecvt>
 #include <vector>
 #include <string>
 #include <cmath>
@@ -54,33 +56,36 @@ namespace
   }
 }
 
-constexpr int width = 1900;
-constexpr int height = 1000;
+constexpr int width = 300;
+constexpr int height = 300;
 
 void handler(SDL_Renderer* renderer)
 {
   SDLEngine::Logs::Instance(std::cout, false);
   SDLEngine::UI::Texture cloud_texture{SDLEngine::Assets::Instance().getTextureByName(renderer, "cloud_small")};
   SDLEngine::UI::Sprite cloud(std::move(cloud_texture));
+  cloud.move(50, 50);
 
-  SDLEngine::UI::Font f(TTF_OpenFont("assets/ff.ttf", 20), 10, {255, 0, 0, 255});
   SDLEngine::UI::TextBox tb(
       u"345 test1 приветабвгдеёжзийклмнопрстуфхцчшщъыьэюяfbcdefghijklmnopqrstuvwxyz test3 тест4 test5 тест6 test7 тест8 test9",
-      SDL_Rect{0, 0, 200, 200}, std::move(f), renderer);
+      SDL_Rect{20, 20, 200, 200}, {TTF_OpenFont("assets/ff.ttf", 20), {255, 0, 0, 255}});
   SDL_Color rect_color = {0, 120, 120, 255};
-  SDLEngine::UI::Rectangle rectt({10, 10, width - 20, height - 20}, rect_color, 40);
+  int temp = 60;
+  SDLEngine::UI::Rectangle rectt({temp, temp, width - 2 * temp, height - 2 * temp}, rect_color, 10);
+
+  SDLEngine::UI::TextBox fps_textbox(u"233", SDL_Rect{0, 0, 0, 0}, {TTF_OpenFont("assets/ff.ttf", 20), {0, 255, 0, 255}});
 
   bool stopped = false;
   double x = 0;
   SDLEngine::Timer timer;
-  timer.setFPS(500);
+  timer.setFPS(10000);
   timer.startTimer();
   int fps_i = 0;
   while (!stopped)
   {
     timer.updateTimer();
     SDL_Event event;
-    if (SDL_PollEvent(&event))
+    while (SDL_PollEvent(&event))
     {
       switch (event.type)
       {
@@ -103,26 +108,28 @@ void handler(SDL_Renderer* renderer)
     SDL_RenderClear(renderer);
 
     // SDL_RenderCopy(renderer, texture, NULL, &texture_rect);
+    rectt.render(renderer);
     cloud.render(renderer);
 
     tb.render(renderer);
-    rectt.render(renderer);
+    fps_textbox.render(renderer);
     x += 1e-2;
     rect_color.r = 128 * sin(x) + 128;
     rect_color.g = 128 * sin(x + 2.f * M_PI / 3.f) + 128;
     rect_color.b = 128 * sin(x + M_PI * 4.f / 3) + 128;
     rectt.setColor(rect_color);
 
-    if (fps_i == 20)
+    if (fps_i++ == 50)
     {
+      std::wstring_convert< std::codecvt_utf8_utf16< char16_t >, char16_t > convert;
+      fps_textbox.setText(convert.from_bytes(std::to_string(timer.getCurrentFPS())));
       // eng->recreateFPS(5, 5, 25, timer->getCurrentFPS());
-      std::cout << "Current FPS: " << std::to_string(timer.getCurrentFPS()) << std::endl;
+      // std::cout << "Current FPS: " << timer.getCurrentFPS() << std::endl;
       fps_i = 0;
     }
-    fps_i++;
 
     // SDL_RenderCopy(renderer, rounded_texture, NULL, &rounded_rect);
-
+    // SDL_UpdateWindowSurfaceRects();
     SDL_RenderPresent(renderer);
   }
 }

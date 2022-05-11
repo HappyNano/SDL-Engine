@@ -3,14 +3,13 @@
 #include "SDLMethods.hpp"
 #include "Assets.hpp"
 
-SDLEngine::UI::Font::Font(TTF_Font* font, size_t size, SDL_Color color):
-  size_(size),
+SDLEngine::UI::Font::Font(TTF_Font* font, SDL_Color color):
   color_(color),
   font_(font)
 {}
 
 SDLEngine::UI::Font::Font(TTF_Font* font):
-  Font(font, 14, {0, 0, 0, 255})
+  Font(font, {0, 0, 0, 255})
 {}
 
 // SDLEngine::UI::Font::Font(const std::string& font_name):
@@ -18,11 +17,9 @@ SDLEngine::UI::Font::Font(TTF_Font* font):
 // {}
 
 SDLEngine::UI::Font::Font(this_t&& obj) noexcept:
-  size_(obj.size_),
   color_(obj.color_),
   font_(obj.font_)
 {
-  obj.size_ = 0;
   obj.color_ = {0, 0, 0, 0};
   obj.font_ = nullptr;
 }
@@ -47,7 +44,6 @@ SDLEngine::UI::Font::this_t& SDLEngine::UI::Font::operator=(this_t&& obj) noexce
 
 void SDLEngine::UI::Font::swap(this_t& obj) noexcept
 {
-  std::swap(size_, obj.size_);
   std::swap(color_, obj.color_);
   std::swap(font_, obj.font_);
 }

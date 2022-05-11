@@ -125,6 +125,11 @@ void SDLEngine::UI::TextBoxBase::setRect(const SDL_Rect& rect)
   rect_ = rect;
   doReCreateTextTextures();
 }
+void SDLEngine::UI::TextBoxBase::setText(const std::u16string& text)
+{
+  text_ = text;
+  doReCreateTextTextures();
+}
 
 int SDLEngine::UI::TextBoxBase::getWidth() const
 {
@@ -179,7 +184,7 @@ void SDLEngine::UI::TextBoxBase::reCreateTextSurfaces()
     return;
   }
 
-  if (getHeight() && !getWidth())
+  if (!getWidth())
   {
     addText(text_);
   }
@@ -226,12 +231,11 @@ void SDLEngine::UI::TextBoxBase::reCreateTextSurfaces()
   }
 }
 
-SDLEngine::UI::TextBox::TextBox(const std::u16string& text, const SDL_Rect& rect, Font&& font, SDL_Renderer* renderer):
+SDLEngine::UI::TextBox::TextBox(const std::u16string& text, const SDL_Rect& rect, Font&& font):
   TextBoxBase(text, rect, std::move(font)),
   padding_{0, 0, 0, 0},
   indent_(3),
   wrapping_(Wrapping::leftTop),
-  renderer_(renderer),
   text_textures_()
 {
   doReCreateTextTextures();
@@ -248,9 +252,13 @@ void SDLEngine::UI::TextBox::move(int offset_x, int offset_y)
 void SDLEngine::UI::TextBox::handleEvent(const SDL_Event&)
 {}
 
-void SDLEngine::UI::TextBox::render(SDL_Renderer*)
+void SDLEngine::UI::TextBox::render(SDL_Renderer* renderer)
 {
-  std::for_each(text_textures_.begin(), text_textures_.end(), std::bind(&Texture::render, std::placeholders::_1, renderer_));
+  if (text_textures_.empty() && !text_surfaces_.empty())
+  {
+    reCreateTextTextures(renderer);
+  }
+  std::for_each(text_textures_.begin(), text_textures_.end(), std::bind(&Texture::render, std::placeholders::_1, renderer));
 }
 
 void SDLEngine::UI::TextBox::clearTextTextures()
@@ -258,10 +266,10 @@ void SDLEngine::UI::TextBox::clearTextTextures()
   text_textures_.clear();
 }
 
-void SDLEngine::UI::TextBox::reCreateTextTextures()
+void SDLEngine::UI::TextBox::reCreateTextTextures(SDL_Renderer* renderer)
 {
   clearTextTextures();
-  auto builder = std::bind(&Surface::createTexture, std::placeholders::_1, renderer_);
+  auto builder = std::bind(&Surface::createTexture, std::placeholders::_1, renderer);
   std::transform(text_surfaces_.begin(), text_surfaces_.end(), std::back_inserter(text_textures_), builder);
 
   SDL_Rect rect = rect_;
@@ -321,5 +329,5 @@ void SDLEngine::UI::TextBox::reCreateTextTextures()
 void SDLEngine::UI::TextBox::doReCreateTextTextures()
 {
   reCreateTextSurfaces();
-  reCreateTextTextures();
+  clearTextTextures();
 }
