@@ -5,6 +5,7 @@
 #include <iostream>
 #include <vector>
 #include <string>
+#include <cmath>
 #include <functional>
 
 #include "UI/Sprite.hpp"
@@ -15,6 +16,7 @@
 #include "UI/Rectangle.hpp"
 
 #include "Logs.hpp"
+#include "Timer.hpp"
 
 void print_sdlerror()
 {
@@ -52,8 +54,8 @@ namespace
   }
 }
 
-constexpr int width = 200;
-constexpr int height = 200;
+constexpr int width = 1900;
+constexpr int height = 1000;
 
 void handler(SDL_Renderer* renderer)
 {
@@ -65,11 +67,18 @@ void handler(SDL_Renderer* renderer)
   SDLEngine::UI::TextBox tb(
       u"345 test1 приветабвгдеёжзийклмнопрстуфхцчшщъыьэюяfbcdefghijklmnopqrstuvwxyz test3 тест4 test5 тест6 test7 тест8 test9",
       SDL_Rect{0, 0, 200, 200}, std::move(f), renderer);
-  SDLEngine::UI::Rectangle rectt({50, 50, 150, 150}, {0, 120, 120, 255}, 0);
+  SDL_Color rect_color = {0, 120, 120, 255};
+  SDLEngine::UI::Rectangle rectt({10, 10, width - 20, height - 20}, rect_color, 40);
 
   bool stopped = false;
+  double x = 0;
+  SDLEngine::Timer timer;
+  timer.setFPS(500);
+  timer.startTimer();
+  int fps_i = 0;
   while (!stopped)
   {
+    timer.updateTimer();
     SDL_Event event;
     if (SDL_PollEvent(&event))
     {
@@ -95,8 +104,23 @@ void handler(SDL_Renderer* renderer)
 
     // SDL_RenderCopy(renderer, texture, NULL, &texture_rect);
     cloud.render(renderer);
-    rectt.render(renderer);
+
     tb.render(renderer);
+    rectt.render(renderer);
+    x += 1e-2;
+    rect_color.r = 128 * sin(x) + 128;
+    rect_color.g = 128 * sin(x + 2.f * M_PI / 3.f) + 128;
+    rect_color.b = 128 * sin(x + M_PI * 4.f / 3) + 128;
+    rectt.setColor(rect_color);
+
+    if (fps_i == 20)
+    {
+      // eng->recreateFPS(5, 5, 25, timer->getCurrentFPS());
+      std::cout << "Current FPS: " << std::to_string(timer.getCurrentFPS()) << std::endl;
+      fps_i = 0;
+    }
+    fps_i++;
+
     // SDL_RenderCopy(renderer, rounded_texture, NULL, &rounded_rect);
 
     SDL_RenderPresent(renderer);

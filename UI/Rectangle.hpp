@@ -22,6 +22,8 @@ namespace SDLEngine
       void setY(int) override;
       void move(int, int) override;
       void setRect(const SDL_Rect&) override;
+      void setColor(SDL_Color);
+      void setRadius(int);
 
       int getWidth() const override;
       int getHeight() const override;
@@ -35,7 +37,7 @@ namespace SDLEngine
 
     private:
       SDL_Color color_;
-      int rounder_radius_;
+      int round_radius_;
       SDL_Rect rect_;
       Surface surface_;
       Texture texture_;

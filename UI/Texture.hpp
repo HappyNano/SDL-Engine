@@ -29,6 +29,7 @@ namespace SDLEngine
       void render(SDL_Renderer*);
 
       bool valid() const;
+      void erase();
 
       SDL_Texture* texture_;
       SDL_Rect rect_;

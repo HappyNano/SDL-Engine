@@ -39,10 +39,7 @@ SDLEngine::UI::Texture::Texture(this_t&& obj) noexcept:
 
 SDLEngine::UI::Texture::~Texture()
 {
-  if (texture_)
-  {
-    SDL_DestroyTexture(texture_);
-  }
+  erase();
 }
 
 SDLEngine::UI::Texture::this_t& SDLEngine::UI::Texture::operator=(this_t&& obj) noexcept
@@ -79,4 +76,13 @@ void SDLEngine::UI::Texture::render(SDL_Renderer* renderer)
 bool SDLEngine::UI::Texture::valid() const
 {
   return texture_;
+}
+
+void SDLEngine::UI::Texture::erase()
+{
+  if (texture_)
+  {
+    SDL_DestroyTexture(texture_);
+  }
+  texture_ = nullptr;
 }
