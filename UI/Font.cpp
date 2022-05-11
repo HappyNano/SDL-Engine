@@ -7,14 +7,15 @@ SDLEngine::UI::Font::Font(TTF_Font* font, SDL_Color color):
   color_(color),
   font_(font)
 {}
-
+SDLEngine::UI::Font::Font(const std::string& font_name, int size, SDL_Color color):
+  Font(Assets::Instance().getFontByName(font_name, size), color)
+{}
 SDLEngine::UI::Font::Font(TTF_Font* font):
   Font(font, {0, 0, 0, 255})
 {}
-
-// SDLEngine::UI::Font::Font(const std::string& font_name):
-//   Font(Assets)
-// {}
+SDLEngine::UI::Font::Font(const std::string& font_name, int size):
+  Font(font_name, size, {0, 0, 0, 255})
+{}
 
 SDLEngine::UI::Font::Font(this_t&& obj) noexcept:
   color_(obj.color_),

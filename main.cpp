@@ -27,7 +27,7 @@ void print_sdlerror()
 
 namespace
 {
-  bool checkAssets(SDL_Renderer* renderer)
+  bool checkTextures(SDL_Renderer* renderer)
   {
     bool is_ok = true;
 
@@ -54,6 +54,31 @@ namespace
 
     return is_ok;
   }
+
+  bool checkFonts()
+  {
+    bool is_ok = true;
+
+    std::vector< std::pair< std::string, std::string > > fonts_names({
+        {"default", "assets/ff.ttf"},
+        //  {"test_texture", "assets/test.png"}
+    });
+
+    for (auto&& font_name: fonts_names)
+    {
+      if (SDLEngine::Assets::Instance().checkAndSaveFonts(font_name.first, font_name.second, 1))
+      {
+        SDLEngine::Logs::print("Fonts", "Loaded font: " + font_name.second, SDLEngine::LogLevel::INFO);
+      }
+      else
+      {
+        SDLEngine::Logs::print("Fonts", "Failed to load font: " + font_name.second, SDLEngine::LogLevel::ERROR);
+        is_ok = false;
+      }
+    }
+
+    return is_ok;
+  }
 }
 
 constexpr int width = 300;
@@ -66,14 +91,13 @@ void handler(SDL_Renderer* renderer)
   SDLEngine::UI::Sprite cloud(std::move(cloud_texture));
   cloud.move(50, 50);
 
-  SDLEngine::UI::TextBox tb(
-      u"345 test1 приветабвгдеёжзийклмнопрстуфхцчшщъыьэюяfbcdefghijklmnopqrstuvwxyz test3 тест4 test5 тест6 test7 тест8 test9",
-      SDL_Rect{20, 20, 200, 200}, {TTF_OpenFont("assets/ff.ttf", 20), {255, 0, 0, 255}});
+  SDLEngine::UI::TextBox tb(u"345 test1 приветабвгдеёжзийклмнопрстуфхцчшщъыьэюяfbcdefghijklmnopqrstuvwxyz test3 тест4 test5",
+                            SDL_Rect{20, 20, 200, 200}, {"default", 20, {255, 0, 0, 255}});
   SDL_Color rect_color = {0, 120, 120, 255};
   int temp = 60;
   SDLEngine::UI::Rectangle rectt({temp, temp, width - 2 * temp, height - 2 * temp}, rect_color, 10);
 
-  SDLEngine::UI::TextBox fps_textbox(u"233", SDL_Rect{0, 0, 0, 0}, {TTF_OpenFont("assets/ff.ttf", 20), {0, 255, 0, 255}});
+  SDLEngine::UI::TextBox fps_textbox(u"233", SDL_Rect{0, 0, 0, 0}, {"default", 20, {0, 255, 0, 255}});
 
   bool stopped = false;
   double x = 0;
@@ -159,7 +183,7 @@ int main()
     return 1;
   }
 
-  if (checkAssets(renderer))
+  if (checkTextures(renderer) && checkFonts())
   {
     handler(renderer);
   }

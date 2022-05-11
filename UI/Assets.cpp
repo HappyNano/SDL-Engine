@@ -55,7 +55,7 @@ SDL_Texture* SDLEngine::Assets::getTextureByName(SDL_Renderer* renderer, const s
 
 TTF_Font* SDLEngine::Assets::getFontByName(const std::string& font_name, int size)
 {
-  return Assets::LoadFont(assets_names_[font_name]);
+  return Assets::LoadFont(assets_names_[font_name].c_str(), size);
 }
 
 SDL_Texture* SDLEngine::Assets::LoadBMP(SDL_Renderer* renderer, const char* filename)

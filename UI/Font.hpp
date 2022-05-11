@@ -15,7 +15,9 @@ namespace SDLEngine
 
       Font() = delete;
       Font(TTF_Font*, SDL_Color);
+      Font(const std::string&, int, SDL_Color);
       Font(TTF_Font*);
+      Font(const std::string&, int);
       Font(const this_t&) = delete;
       Font(this_t&&) noexcept;
       ~Font();
