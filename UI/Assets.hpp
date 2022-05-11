@@ -18,10 +18,10 @@ namespace SDLEngine
       return singleton;
     }
 
-    bool checkAndSaveTextures(SDL_Renderer*, const std::string&, const std::string&);
-    bool checkAndSaveFonts(const std::string&, const std::string&, int);
-    SDL_Texture* getTextureByName(SDL_Renderer*, const std::string&);
-    TTF_Font* getFontByName(const std::string&, int);
+    static bool checkAndSaveTextures(SDL_Renderer*, const std::string&, const std::string&);
+    static bool checkAndSaveFonts(const std::string&, const std::string&, int);
+    static SDL_Texture* getTextureByName(SDL_Renderer*, const std::string&);
+    static TTF_Font* getFontByName(const std::string&, int);
 
     static SDL_Texture* LoadBMP(SDL_Renderer* renderer, const char* filename);
     static SDL_Texture* LoadPNG(SDL_Renderer* renderer, const char* filename);

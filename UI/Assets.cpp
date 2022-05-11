@@ -16,7 +16,7 @@ bool SDLEngine::Assets::checkAndSaveTextures(SDL_Renderer* renderer, const std::
       texture = Assets::LoadPNG(renderer, path.c_str());
     }
     SDL_DestroyTexture(texture);
-    assets_names_.insert({texture_name, path});
+    Instance().assets_names_.insert({texture_name, path});
   }
   catch (const std::logic_error&)
   {
@@ -31,7 +31,7 @@ bool SDLEngine::Assets::checkAndSaveFonts(const std::string& font_name, const st
   {
     TTF_Font* font = Assets::LoadFont(path.c_str(), size);
     TTF_CloseFont(font);
-    assets_names_.insert({font_name, path});
+    Instance().assets_names_.insert({font_name, path});
   }
   catch (const std::logic_error&)
   {
@@ -42,7 +42,7 @@ bool SDLEngine::Assets::checkAndSaveFonts(const std::string& font_name, const st
 
 SDL_Texture* SDLEngine::Assets::getTextureByName(SDL_Renderer* renderer, const std::string& texture_name)
 {
-  std::string path = assets_names_[texture_name];
+  std::string path = Instance().assets_names_[texture_name];
   if (path.find(".bmp") != std::string::npos)
   {
     return Assets::LoadBMP(renderer, path.c_str());
@@ -55,7 +55,7 @@ SDL_Texture* SDLEngine::Assets::getTextureByName(SDL_Renderer* renderer, const s
 
 TTF_Font* SDLEngine::Assets::getFontByName(const std::string& font_name, int size)
 {
-  return Assets::LoadFont(assets_names_[font_name].c_str(), size);
+  return Assets::LoadFont(Instance().assets_names_[font_name].c_str(), size);
 }
 
 SDL_Texture* SDLEngine::Assets::LoadBMP(SDL_Renderer* renderer, const char* filename)
