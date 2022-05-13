@@ -30,6 +30,10 @@ bool SDLEngine::Assets::checkAndSaveFonts(const std::string& font_name, const st
   try
   {
     TTF_Font* font = Assets::LoadFont(path.c_str(), size);
+    if (!font)
+    {
+      return false;
+    }
     TTF_CloseFont(font);
     Instance().assets_names_.insert({font_name, path});
   }
@@ -55,7 +59,7 @@ SDL_Texture* SDLEngine::Assets::getTextureByName(SDL_Renderer* renderer, const s
 
 TTF_Font* SDLEngine::Assets::getFontByName(const std::string& font_name, int size)
 {
-  return Assets::LoadFont(Instance().assets_names_[font_name].c_str(), size);
+  return Assets::LoadFont(Instance().assets_names_.at(font_name).c_str(), size);
 }
 
 SDL_Texture* SDLEngine::Assets::LoadBMP(SDL_Renderer* renderer, const char* filename)
@@ -83,7 +87,7 @@ SDL_Texture* SDLEngine::Assets::LoadPNG(SDL_Renderer* renderer, const char* file
 
 TTF_Font* SDLEngine::Assets::LoadFont(const char* filename, int size)
 {
-  TTF_Font* font = LoadFont(filename, size);
+  TTF_Font* font = TTF_OpenFont(filename, size);
   if (!font)
   {
     throw std::logic_error("Failed to load font!");
