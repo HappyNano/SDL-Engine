@@ -1,6 +1,10 @@
 # **SDL-Engine**
 
-Игровой движок, работающий на **SDL-2.0**, **SDL-ttf**, **SDL-Image**
+Игровой движок
+
+Написан на **SDL-2.0**, **SDL-ttf**, **SDL-Image**
+
+Выполнен на **GNU++14**
 
 # Установка
 
@@ -281,4 +285,101 @@ test_rectangle.render(renderer); // Рендер прямоугольника н
 test_rectangle.setColor({0, 255, 0, 255}); // Изменение цвета прямоугольника
 // Очищение памяти автоматическое
 ```
+
+## **`Wrapping`**
+
+Состоит из файлов: `UI/Wrapping.cpp` и `UI/Wrapping.hpp`
+
+Методы для выравнивания массива текстур
+
+> Это дополнительные методы для `UI::TextBox`
+
+### Варианты выравнивания
+```cpp
+enum class Wrapping
+{
+  leftTop,       // Левый верхний угол
+  centerTop,     // Сверху по центру
+  rightTop,      // Правый верхний угол
+  leftEquator,   // Слева посередине
+  centerEquator, // По центру
+  rightEquator,  // Справа посередине
+  leftBottom,    // Левый нижний угол
+  centerBottom,  // Снизу по центру
+  rightBottom,   // Правый нижний угол
+  none           // Нет центровки никакой (Текст будет слева сверху и не будет подгоняться по размерам)
+};
+```
+
+### Методы
+- Все методы принимают:
+  1. Размеры прямоугольника в котором нужно выравнивать массив элементов
+  2. Массив (`std::vector< UI::Texture >`)
+  3. Отступ между элементами (вертикальный) в пикселях
+- Методы:
+1. `wrapLeftTop`
+2. `wrapCenterTop` 
+3. `wrapRightTop`
+4. `wrapLeftEquator`
+5. `wrapCenterEquator`
+6. `wrapRightEquator`
+7. `wrapLeftBottom`
+8. `wrapCenterBottom`
+9. `wrapRightBottom`
+
+## **`TextBox`**
+
+Состоит из файлов: `UI/TextBox.cpp` и `UI/TextBox.hpp`
+
+Дополнительные файлы: `UI/Wrapping.cpp` и `UI/Wrapping.hpp` (их описание выше)
+
+UI-элемент - поле для текста.
+
+> `TextBoxBase` отдельный класс (деталь реализации), содержащий основную логику выравнивания текста и т.п. (Работает на `SDL_Surface`)
+
+### Необходимые поля
+- `UI::TextBoxBase`
+  - `SDL_Rect` Общий размер всего элемента
+  - `UI::Font` Шрифт
+  - `std::vector< UI::Surface >` Массив поверхностей текста
+  - `std::u16string` Текст элемента в UTF-16 *(по умолчанию `""`)*
+- `UI::TextBox`
+  - `int[4] padding` Отступы от края *(по умолчанию {0, 0, 0, 0})*
+  - `int indent` Отступ между поверхностями текста *(по умолчанию 3 пикселя)*
+  - `UI::Wrapping` Тип выравнивания текста *(по умолчанию `Wrapping::LeftTop`)*
+  - `std::vector< UI::Texture >` Массив текстур текста
+
+### Методы
+- Все методы из родительского класса переопределены
+- Конструктор принимает текст в UTF-16, размеры элемента, шрифт
+```cpp
+TextBox(const std::u16string&, const SDL_Rect&, Font&&);
+```
+- Поменять текст
+```cpp
+void setText(const std::u16string&);
+```
+- Не используется обработчик событий
+- *private*-метод `clearTextSurfaces` - очищает массив поверхностей текста
+- *private*-метод `reCreateTextSurfaces` - пересоздает массив поверхностей текста
+  - Вызывает `clearTextSurfaces`
+  - Разделяет текст на слова
+  - Выраванивает текст по ширине и типу выравнивания
+- виртуальный *private*-метод `doReCreateTextTextures` - служит для перерисовки всех поерхностей текста, а так же их текстур в `UI::TextBox`
+- *private*-метод `addText` - дополнительный метод для легкого добавления поверхности текста в массив
+
+
+### Использование
+- При изменении ширины или высоты вызвается функция перерисовки элемента
+```cpp
+SDLEngine::Assets::Instance().checkAndSaveFonts("default_font", "assets/default_font.ttf", 1); // Сохраняем шрифт assets/default_font.ttf в UI::Assets под названием default_font
+SDLEngine::UI::TextBox test_textbox(u"This is test text!", {0, 0, 100, 100}, {"default", 20, {255, 0, 0, 255}}); // Создаем поле для текста с коорд. 0 0 и размерами 100 на 100. Шрифт - default размера 20 красного цвета
+test_textbox.render(renderer); // Рендер элемента
+```
+
+
+# Дополнительно
+
+## Ошибки
+- Ошибка `SDL_main`. Убедитесь в том, что ваш `main` принимает 2 параметра: `int argc, char** argv`
 
