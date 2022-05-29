@@ -44,7 +44,28 @@ static void print(const std::string&, const std::string&, LogLevel);
 SDLEngine::Logs::print("Textures", "Loaded texture: " + test_texture, SDLEngine::LogLevel::INFO);
 ```
 Вывод:
-<style color = "yellow" > INFO   [Textures  ] Loaded texture: assets/cloud.png </style>
+```
+INFO   [Textures  ] Loaded texture: assets/cloud.png
+```
+
+## **`Timer`**
+
+Состоит из файлов: `Timer.cpp` и `Timer.hpp`
+
+Служит для удобного контроля над FPS игры
+
+### Методы
+
+- `setFps`
+  - Устанавливает максимальный FPS
+- `startTimer`
+  - Запускает таймер. Необходимо выполнять данный метод перед запуском основного цикла программы
+- `updateTimer`
+  - Обновляет таймер. Необходимо выпонлять данный метод на каждой итерации цикла
+- `getCurrentFPS`
+  - Получение текущего FPS. Возвращает значение в int
+- `getDT`
+  - Получение временного интервала одного кадра
 
 # **UI**-файлы движка
 
