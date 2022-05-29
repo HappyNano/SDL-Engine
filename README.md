@@ -69,3 +69,24 @@ int getTextHeight(const std::u16string&) const;
 SDL_Rect getTextRect(const std::u16string&) const;
 ```
 
+## **`Geometry`**
+
+Состоит из файлов: `UI/Geometry.cpp` и `UI/Geometry.hpp`
+
+Упрощает работу с поверхностями `SDL_Surface`
+
+Функции принимают цвет в виде `Uint32`
+
+### Функции:
+```cpp
+void set_pixel(SDL_Surface*, int, int, Uint32);
+void DrawCircle(SDL_Surface*, int32_t, int32_t, int32_t, Uint32);
+void DrawRectangle(SDL_Surface*, int32_t, int32_t, int32_t, int32_t, Uint32);
+void draw_FillRoundedRectangle(SDL_Surface*, int, int, int, int, int, Uint32);
+void draw_GradientRectangle(SDL_Surface*, int, int, int, int, Uint32, Uint32);
+```
+- `set_pixel` - устанавливает пиксель цвета color в координатах x, y
+- `DrawCircle` - рисует круг в координатах x, y радиуса r цвета color
+- `DrawRectangle` - рисует заполненный прямоугольник в координатах x, y с параметрами width, heigth цвета color
+- `draw_FillRoundedRectangle` - рисует заполненный прямоугольник в координатах x, y с параметрами width, heigth радиуса загругления r цвета color
+- `draw_GradientRectangle` - рисует прямоугольник с координатами x, y и размерами width, height, заполненный градиентом от begin_color до end_color 
