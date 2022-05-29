@@ -1,6 +1,22 @@
 # **SDL-Engine**
 
-Игровой движок, работающий на **SDL-2.0**
+Игровой движок, работающий на **SDL-2.0**, **SDL-ttf**, **SDL-Image**
+
+# Установка
+
+Для установки `SDL-2.0`, `SDL-ttf`, `SDL-Image`
+- Для пользователей Linux
+```bash
+sudo apt-get update
+sudo apt-get install libsdl2-2.0 libsdl2-ttf-dev libsdl2-image-dev -y
+```
+- Для сборки необходимо дополнительно установить `make`, `g++` и `valgrind` (необязательно)
+```bash
+sudo apt-get update
+sudo apt-get install make g++ valgrind -y
+```
+
+
 
 # **UI**-файлы движка
 
@@ -8,7 +24,7 @@
 
 Состоит из файлов: `UI/Assets.cpp` и `UI/Assets.hpp`
 
-Работает на принципе Сигнлтона-Майерса.
+Работает на принципе Синглтона-Майерса.
 
 ### Использование
 - Вызов объекта класса `Assets`
