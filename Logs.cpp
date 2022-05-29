@@ -6,6 +6,12 @@
 #define YELLOW "\033[1;33m"
 #define WHITE "\033[1;37m"
 
+SDLEngine::Logs& SDLEngine::Logs::Instance(std::ostream& stream, bool colored)
+{
+  static Logs singleton{stream, colored};
+  return singleton;
+}
+
 void SDLEngine::Logs::print(const std::string& tag, const std::string& text, LogLevel level)
 {
   Instance().doPrint(tag, text, level);

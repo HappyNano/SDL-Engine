@@ -15,11 +15,7 @@ namespace SDLEngine
 
   struct Logs
   {
-    static Logs& Instance(std::ostream& stream = std::cout, bool colored = true)
-    {
-      static Logs singleton{stream, colored};
-      return singleton;
-    }
+    static Logs& Instance(std::ostream& stream = std::cout, bool colored = true);
 
     static void print(const std::string&, const std::string&, LogLevel);
     void doPrint(const std::string&, const std::string&, LogLevel);

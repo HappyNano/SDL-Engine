@@ -16,7 +16,35 @@ sudo apt-get update
 sudo apt-get install make g++ valgrind -y
 ```
 
+# Основные файлы движка
 
+## **`Logs`**
+
+Состоит из файлов: `Logs.cpp` и `Logs.hpp`
+
+Работает на принципе Синглтона-Майерса.
+
+Выводит все логи красиво
+
+### Использование
+
+```cpp
+static void print(const std::string&, const std::string&, LogLevel);
+```
+
+- Основной метод `print`
+  - Принимает `tag`, `text` и `level`
+- `LogLevel`
+  - 3 уровня вывода логов:
+  1. `ERROR`
+  2. `INFO`
+  3. `DEBUG`
+- Пример использования
+```cpp
+SDLEngine::Logs::print("Textures", "Loaded texture: " + test_texture, SDLEngine::LogLevel::INFO);
+```
+Вывод:
+<style color = "yellow" > INFO   [Textures  ] Loaded texture: assets/cloud.png </style>
 
 # **UI**-файлы движка
 
