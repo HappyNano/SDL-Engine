@@ -133,6 +133,64 @@ int getTextHeight(const std::u16string&) const;
 SDL_Rect getTextRect(const std::u16string&) const;
 ```
 
+## **`Surface`**
+
+Состоит из файлов: `UI/Surface.cpp` и `UI/Surface.hpp`
+
+Упрощает работу с поверхностями из `SDL2/SDL.h`: автоматическое уничтожение поверхности
+
+Запрещено копирование
+
+### Использование
+- Конструктор из `SDL_Surface`
+```cpp
+Surface(SDL_Surface*);
+```
+- Создание текстуры из поверхности
+```cpp
+SDL_Texture* createTexture(SDL_Renderer*);
+```
+- Получение размера поверхности
+```cpp
+SDL_Rect getRect() const;
+```
+
+## **`Texture`**
+
+Состоит из файлов: `UI/Texture.cpp` и `UI/Texture.hpp`
+
+Упрощает работу с текстурами из `SDL2/SDL.h`: автоматическое уничтожение текстуры
+
+Запрещено копирование
+
+> ВАЖНО! Следите за тем, чтобы деструктор Texture выполнялся раньше, чем произойдет уничтожение **SDL_Renderer**
+
+### Использование
+- Конструкторы
+1. Из `SDL_Texture*` и размеров `SDL_Rect`
+2. Из `SDL_Texture*`. Размер получается на месте, с помощью метода SDL_QueryTexture. Тогда x, y будут равны 0
+3. Из `SDL_Surface*`
+4. Из `UI::Surface&&`
+```cpp
+Texture(SDL_Texture*, const SDL_Rect&);
+Texture(SDL_Texture*);
+Texture(SDL_Renderer*, SDL_Surface*);
+Texture(SDL_Renderer*, Surface&&);
+```
+- Метод `move` для перемещения текстуры на координаты x, y
+```cpp
+void move(int, int);
+```
+- Метод `render` для рендера текстуры
+```cpp
+void render(SDL_Renderer*);
+```
+- Методы получения показателя "валидности" текстуры и ее очищение
+```cpp
+bool valid() const;
+void erase();
+```
+
 ## **`Geometry`**
 
 Состоит из файлов: `UI/Geometry.cpp` и `UI/Geometry.hpp`
@@ -162,6 +220,33 @@ void draw_GradientRectangle(SDL_Surface*, int, int, int, int, Uint32, Uint32);
 ## **`UIElements.hpp`**
 
 Абстрактный класс **UI**-элементов
+
+### Обязательные виртуальные методы
+
+```cpp
+virtual void setWidth(int) = 0; // Установить ширину элемента
+virtual void setHeight(int) = 0; // Установить высоту элемента
+virtual void setX(int) = 0; // Установить X-координату элемента
+virtual void setY(int) = 0;// Установить Y-координату элемента
+virtual void move(int, int) = 0; // Переместить элемент на x, y
+virtual void setRect(const SDL_Rect&) = 0; // Установить размеры элемента при помощи SDL_Rect
+
+virtual int getWidth() const = 0; // Получить ширину элемента
+virtual int getHeight() const = 0; // Получить высоту элемента
+virtual int getX() const = 0; // Получить X-координату элемента
+virtual int getY() const = 0; // Получить Y-координату элемента
+virtual const SDL_Rect& getRect() const = 0; // Получить размеры элемента в SDL_Rect
+
+virtual void handleEvent(const SDL_Event&) = 0; // Обработчик событий
+
+virtual void render(SDL_Renderer*) = 0; // Рендерниг элемента
+```
+
+## **`Rectangle`**
+
+Состоит из файлов: `UI/Rectangle.cpp` и `UI/Rectangle.hpp`
+
+Упрощает работу со шрифтами из `SDL2/SDL_ttf.h`: автоматическое удаление указателя на `TTF_Font`.
 
 ### Обязательные виртуальные методы
 
