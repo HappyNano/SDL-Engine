@@ -233,7 +233,7 @@ void SDLEngine::UI::TextBoxBase::reCreateTextSurfaces()
 
 SDLEngine::UI::TextBox::TextBox(const std::u16string& text, const SDL_Rect& rect, Font&& font):
   TextBoxBase(text, rect, std::move(font)),
-  padding_{5, 5, 5, 5},
+  padding_{0, 0, 0, 0},
   indent_(3),
   wrapping_(Wrapping::leftTop),
   text_textures_(),
