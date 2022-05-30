@@ -421,19 +421,6 @@ SDLEngine::Game::Sprite test_sprite(std::move(test_texture)); // Создани�
 test_sprite.render(renderer); // Рендер спрайта
 ```
 
-- Основной метод `print`
-  - Принимает `tag`, `text` и `level`
-- `LogLevel`
-  - 3 уровня вывода логов:
-  1. `ERROR`
-  2. `INFO`
-  3. `DEBUG`
-- Пример использования
-```cpp
-SDLEngine::Logs::print("Textures", "Loaded texture: " + test_texture, SDLEngine::LogLevel::INFO);
-```
-
-
 # Дополнительно
 
 ## Ошибки
