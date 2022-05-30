@@ -377,6 +377,62 @@ SDLEngine::UI::TextBox test_textbox(u"This is test text!", {0, 0, 100, 100}, {"d
 test_textbox.render(renderer); // Рендер элемента
 ```
 
+# **Game**-файлы движка
+
+## **`Sprite`**
+
+Состоит из файлов: `Game/Sprite.cpp` и `Game/Sprite.hpp`
+
+Упрощает работу с объектами игры
+
+### Методы
+- Конструктор принимает *r-value* на `UI::Texture`
+```cpp
+Sprite(UI::Texture&&);
+```
+- Масштабирование текстуры в N раз
+```cpp
+void scale(double);
+```
+- Перемещение спрайта на x, y
+```cpp
+void move(double, double);
+```
+- Проверить пересекаются ли спрайты
+```cpp
+bool checkCollide(const SDL_Rect&) const; // Проверка пересечения с SDL_Rect
+bool checkCollide(const this_t&) const; // Проверка пересечения со спрайтом
+```
+- Получить прямоугольник, который ограничивает зону столкновения
+```cpp
+SDL_Rect getCollideRect() const;
+```
+- Рендер спрайта
+```cpp
+void render(SDL_Renderer*);
+```
+
+### Использование
+
+```cpp
+SDL_Texture* texture = SDLEngine::Assets::Instance().getTextureByName(renderer, "test_texture"); // Получение текстуры по имени из UI::Assets
+SDLEngine::UI::Texture test_texture{texture}; // Создание UI::Texture
+SDLEngine::Game::Sprite test_sprite(std::move(test_texture)); // Создание Sprite'а из UI::Texture
+test_sprite.render(renderer); // Рендер спрайта
+```
+
+- Основной метод `print`
+  - Принимает `tag`, `text` и `level`
+- `LogLevel`
+  - 3 уровня вывода логов:
+  1. `ERROR`
+  2. `INFO`
+  3. `DEBUG`
+- Пример использования
+```cpp
+SDLEngine::Logs::print("Textures", "Loaded texture: " + test_texture, SDLEngine::LogLevel::INFO);
+```
+
 
 # Дополнительно
 
