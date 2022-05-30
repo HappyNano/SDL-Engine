@@ -7,7 +7,7 @@
 
 namespace SDLEngine
 {
-  namespace UI
+  namespace Game
   {
     class Sprite
     {
@@ -15,7 +15,7 @@ namespace SDLEngine
       using this_t = Sprite;
 
       Sprite() = delete;
-      Sprite(Texture&&);
+      Sprite(UI::Texture&&);
       ~Sprite() = default;
 
       void render(SDL_Renderer*);
@@ -29,7 +29,7 @@ namespace SDLEngine
       SDL_Rect getCollideRect() const;
 
     private:
-      Texture texture_;
+      UI::Texture texture_;
       SDL_Rect collide_rect_;
 
       double scale_;

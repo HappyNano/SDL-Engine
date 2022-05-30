@@ -10,7 +10,7 @@
 #include <cmath>
 #include <functional>
 
-#include "UI/Sprite.hpp"
+#include "Game/Sprite.hpp"
 #include "UI/Geometry.hpp"
 #include "UI/Texture.hpp"
 #include "UI/Assets.hpp"
@@ -88,7 +88,7 @@ void handler(SDL_Renderer* renderer)
 {
   SDLEngine::Logs::Instance(std::cout, false);
   SDLEngine::UI::Texture cloud_texture{SDLEngine::Assets::Instance().getTextureByName(renderer, "cloud_small")};
-  SDLEngine::UI::Sprite cloud(std::move(cloud_texture));
+  SDLEngine::Game::Sprite cloud(std::move(cloud_texture));
   cloud.move(50, 50);
 
   SDLEngine::UI::TextBox tb(u"345 test1 приветабвгдеёжзийклмнопрстуфхцчшщъыьэюяfbcdefghijklmnopqrstuvwxyz test3 тест4 test5",
@@ -138,9 +138,9 @@ void handler(SDL_Renderer* renderer)
     tb.render(renderer);
     fps_textbox.render(renderer);
     x += 1e-2;
-    rect_color.r = 128 * sin(x) + 128;
-    rect_color.g = 128 * sin(x + 2.f * M_PI / 3.f) + 128;
-    rect_color.b = 128 * sin(x + M_PI * 4.f / 3) + 128;
+    rect_color.r = 128 * std::sin(x) + 128;
+    rect_color.g = 128 * std::sin(x + 2.f * M_PI / 3.f) + 128;
+    rect_color.b = 128 * std::sin(x + M_PI * 4.f / 3) + 128;
     rectt.setColor(rect_color);
 
     if (fps_i++ == 50)

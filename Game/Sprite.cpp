@@ -1,7 +1,7 @@
 #include "Sprite.hpp"
 #include <utility>
 
-SDLEngine::UI::Sprite::Sprite(Texture&& texture):
+SDLEngine::Game::Sprite::Sprite(UI::Texture&& texture):
   texture_(std::move(texture)),
   collide_rect_(texture_.rect_),
   scale_(1.f),
@@ -9,12 +9,12 @@ SDLEngine::UI::Sprite::Sprite(Texture&& texture):
   y_(texture_.rect_.y)
 {}
 
-void SDLEngine::UI::Sprite::render(SDL_Renderer* renderer)
+void SDLEngine::Game::Sprite::render(SDL_Renderer* renderer)
 {
   texture_.render(renderer);
 }
 
-void SDLEngine::UI::Sprite::scale(double new_scale)
+void SDLEngine::Game::Sprite::scale(double new_scale)
 {
   texture_.rect_.w = texture_.rect_.w * (new_scale / scale_);
   texture_.rect_.h = texture_.rect_.h * (new_scale / scale_);
@@ -24,24 +24,24 @@ void SDLEngine::UI::Sprite::scale(double new_scale)
   scale_ = new_scale;
 }
 
-void SDLEngine::UI::Sprite::move(double offset_x, double offset_y)
+void SDLEngine::Game::Sprite::move(double offset_x, double offset_y)
 {
   x_ += offset_x;
   y_ += offset_y;
   correctCoordinates();
 }
 
-bool SDLEngine::UI::Sprite::checkCollide(const SDL_Rect& rect) const
+bool SDLEngine::Game::Sprite::checkCollide(const SDL_Rect& rect) const
 {
   return SDL_IntersectRect(std::addressof(collide_rect_), std::addressof(rect), NULL);
 }
 
-bool SDLEngine::UI::Sprite::checkCollide(const this_t& obj) const
+bool SDLEngine::Game::Sprite::checkCollide(const this_t& obj) const
 {
   return checkCollide(obj.collide_rect_);
 }
 
-void SDLEngine::UI::Sprite::correctCoordinates()
+void SDLEngine::Game::Sprite::correctCoordinates()
 {
   int offset_x = x_ - texture_.rect_.x;
   int offset_y = y_ - texture_.rect_.y;

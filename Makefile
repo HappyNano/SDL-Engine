@@ -8,10 +8,12 @@ CPPFLAGS += -std=gnu++14
 
 BUILD_FOLDER = build
 
-SOURCES := $(wildcard *.cpp) $(wildcard UI/*.cpp) 
+FOLDERS = UI Game
+
+SOURCES := $(wildcard *.cpp) $(foreach dir,$(FOLDERS),$(wildcard $(dir)/*.cpp))
 OBJECTS := $(patsubst %.cpp,$(BUILD_FOLDER)/%.o,$(SOURCES))
 DEPENDS := $(patsubst %.cpp,$(BUILD_FOLDER)/%.d,$(SOURCES))
-HEADERS := $(wildcard *.h) $(wildcard UI/*.h) $(wildcard *.hpp) $(wildcard UI/*.hpp)
+HEADERS := $(wildcard *.h) $(wildcard *.hpp) $(foreach dir,$(FOLDERS),$(wildcard $(dir)/*.h)) $(foreach dir,$(FOLDERS),$(wildcard $(dir)/*.hpp))
 BUILD_HEADERS := $(addprefix $(BUILD_FOLDER)/, $(HEADERS))
 BUILD_HEADERS_CHECK := $(addsuffix .header, $(BUILD_HEADERS))
 
