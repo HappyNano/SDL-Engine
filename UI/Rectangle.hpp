@@ -12,9 +12,15 @@ namespace SDLEngine
     class Rectangle: UIElements
     {
     public:
+      using this_t = Rectangle;
+
       Rectangle() = default;
       Rectangle(SDL_Rect, SDL_Color, int);
+      Rectangle(this_t&&) noexcept;
       ~Rectangle() = default;
+
+      this_t& operator=(this_t&&) noexcept;
+      void swap(this_t&) noexcept;
 
       void setWidth(int) override;
       void setHeight(int) override;

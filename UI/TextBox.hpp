@@ -9,6 +9,7 @@
 #include "Font.hpp"
 #include "UIElements.hpp"
 #include "Wrapping.hpp"
+#include "Rectangle.hpp"
 
 namespace SDLEngine
 {
@@ -59,6 +60,7 @@ namespace SDLEngine
       virtual ~TextBox() = default;
 
       void move(int, int) override;
+      void setRectangle(Rectangle&&);
       virtual void handleEvent(const SDL_Event&) override;
 
       virtual void render(SDL_Renderer*) override;
@@ -68,6 +70,7 @@ namespace SDLEngine
       int indent_;
       Wrapping wrapping_;
       std::vector< Texture > text_textures_;
+      Rectangle background_;
 
       void clearTextTextures();
       void reCreateTextTextures(SDL_Renderer*);

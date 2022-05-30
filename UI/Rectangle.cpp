@@ -15,6 +15,31 @@ SDLEngine::UI::Rectangle::Rectangle(SDL_Rect rect, SDL_Color color, int round_ra
   reRender();
 }
 
+SDLEngine::UI::Rectangle::Rectangle(this_t&& obj) noexcept:
+  color_(obj.color_),
+  round_radius_(obj.round_radius_),
+  rect_(obj.rect_),
+  surface_(std::move(obj.surface_)),
+  texture_(std::move(obj.texture_))
+{}
+typename SDLEngine::UI::Rectangle::this_t& SDLEngine::UI::Rectangle::operator=(this_t&& obj) noexcept
+{
+  if (std::addressof(obj) != this)
+  {
+    this_t tmp(std::move(obj));
+    swap(tmp);
+  }
+  return *this;
+}
+void SDLEngine::UI::Rectangle::swap(this_t& obj) noexcept
+{
+  std::swap(color_, obj.color_);
+  std::swap(round_radius_, obj.round_radius_);
+  std::swap(rect_, obj.rect_);
+  std::swap(surface_, obj.surface_);
+  std::swap(texture_, obj.texture_);
+}
+
 void SDLEngine::UI::Rectangle::setWidth(int width)
 {
   texture_.rect_.w = width;

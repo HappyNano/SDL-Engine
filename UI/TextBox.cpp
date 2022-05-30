@@ -233,14 +233,19 @@ void SDLEngine::UI::TextBoxBase::reCreateTextSurfaces()
 
 SDLEngine::UI::TextBox::TextBox(const std::u16string& text, const SDL_Rect& rect, Font&& font):
   TextBoxBase(text, rect, std::move(font)),
-  padding_{0, 0, 0, 0},
+  padding_{5, 5, 5, 5},
   indent_(3),
   wrapping_(Wrapping::leftTop),
-  text_textures_()
+  text_textures_(),
+  background_({{0, 0, 1, 1}, {0, 0, 0, 0}, 0})
 {
   doReCreateTextTextures();
 }
 
+void SDLEngine::UI::TextBox::setRectangle(Rectangle&& rect)
+{
+  background_ = std::move(rect);
+}
 void SDLEngine::UI::TextBox::move(int offset_x, int offset_y)
 {
   rect_ += {offset_x, offset_y};
@@ -258,6 +263,7 @@ void SDLEngine::UI::TextBox::render(SDL_Renderer* renderer)
   {
     reCreateTextTextures(renderer);
   }
+  background_.render(renderer);
   std::for_each(text_textures_.begin(), text_textures_.end(), std::bind(&Texture::render, std::placeholders::_1, renderer));
 }
 

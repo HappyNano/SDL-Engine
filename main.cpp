@@ -91,16 +91,18 @@ void handler(SDL_Renderer* renderer)
   SDLEngine::Game::Sprite cloud(std::move(cloud_texture));
   cloud.move(50, 50);
 
-  SDLEngine::UI::TextBox tb(u"345 test1 приветабвгдеёжзийклмнопрстуфхцчшщъыьэюяfbcdefghijklmnopqrstuvwxyz test3 тест4 test5",
+  SDLEngine::UI::TextBox tb(u"1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39",
                             SDL_Rect{20, 20, 200, 200}, {"default", 20, {255, 0, 0, 255}});
-  SDL_Color rect_color = {0, 120, 120, 255};
-  int temp = 60;
-  SDLEngine::UI::Rectangle rectt({temp, temp, width - 2 * temp, height - 2 * temp}, rect_color, 10);
+  SDLEngine::UI::Rectangle tb_back(tb.getRect(), {0, 0, 200, 200}, 10);
+  tb.setRectangle(std::move(tb_back));
+  // SDL_Color rect_color = {0, 120, 120, 255};
+  // int temp = 60;
+  // SDLEngine::UI::Rectangle rectt({temp, temp, width - 2 * temp, height - 2 * temp}, rect_color, 10);
 
   SDLEngine::UI::TextBox fps_textbox(u"233", SDL_Rect{0, 0, 0, 0}, {"default", 20, {0, 255, 0, 255}});
 
   bool stopped = false;
-  double x = 0;
+  // double x = 0;
   SDLEngine::Timer timer;
   timer.setFPS(10000);
   timer.startTimer();
@@ -132,16 +134,16 @@ void handler(SDL_Renderer* renderer)
     SDL_RenderClear(renderer);
 
     // SDL_RenderCopy(renderer, texture, NULL, &texture_rect);
-    rectt.render(renderer);
+    // rectt.render(renderer);
     cloud.render(renderer);
 
     tb.render(renderer);
     fps_textbox.render(renderer);
-    x += 1e-2;
-    rect_color.r = 128 * std::sin(x) + 128;
-    rect_color.g = 128 * std::sin(x + 2.f * M_PI / 3.f) + 128;
-    rect_color.b = 128 * std::sin(x + M_PI * 4.f / 3) + 128;
-    rectt.setColor(rect_color);
+    // x += 1e-2;
+    // rect_color.r = 128 * std::sin(x) + 128;
+    // rect_color.g = 128 * std::sin(x + 2.f * M_PI / 3.f) + 128;
+    // rect_color.b = 128 * std::sin(x + M_PI * 4.f / 3) + 128;
+    // rectt.setColor(rect_color);
 
     if (fps_i++ == 50)
     {
