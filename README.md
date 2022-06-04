@@ -382,6 +382,53 @@ SDLEngine::UI::TextBox test_textbox(u"This is test text!", {0, 0, 100, 100}, {"d
 test_textbox.render(renderer); // Рендер элемента
 ```
 
+## **`Button`**
+
+Состоит из файлов: `UI/Button.cpp` и `UI/Button.hpp`
+
+UI-элемент - кнопка.
+
+Дополнение к `UI::TextBox`
+
+Тип функции 
+```cpp
+using func_type = std::function< void(void) >;
+```
+
+### Необходимые поля
+- `SDL_Color normal_color_` Цвет по умолчанию *(по умолчанию {0, 0, 0, 0})*
+- `SDL_Color hovered_color_` Цвет при наведении *(по умолчанию {0, 0, 0, 0})*
+- `SDL_Color pressed_color_` Цвет при нажатии *(по умолчанию {0, 0, 0, 0})*
+- `function_` Функция
+
+### Методы
+- Дополняют следующие методы `UI::TextBox`
+- Установить функцию по нажатию
+```cpp
+void setFunction(func_type);
+```
+- Получить функцию по нажатию
+```cpp
+func_type getFunction() const;
+```
+- Обработчик событий
+```cpp
+virtual void handleEvent(const SDL_Event&) override;
+```
+
+### Использование
+- При изменении текста, ширины или высоты вызвается функция перерисовки элемента
+```cpp
+// Создается объект Button с текстом "Press me!" и координатами 0 0 и размерами 50 на 50. 3 параметр - шрифт
+SDLEngine::UI::Button test_button(u"Press me!", {0, 0, 50, 50}, {"default", 20, {255, 0, 0, 255}});
+SDLEngine::UI::Rectangle button_background(test_button.getRect(), {0, 0, 200, 200}, 10);
+test_button.setBackground(std::move(button_background)); // Установить фон
+test_button.setFunction([]() { // Установить функцию
+  std::cout << "Pressed!\n";
+});
+test_textbox.render(renderer); // Рендер элемента
+```
+
 # **Game**-файлы движка
 
 ## **`Sprite`**
