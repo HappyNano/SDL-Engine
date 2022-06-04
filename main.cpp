@@ -15,6 +15,7 @@
 #include "UI/Texture.hpp"
 #include "UI/Assets.hpp"
 #include "UI/TextBox.hpp"
+#include "UI/Button.hpp"
 #include "UI/Rectangle.hpp"
 
 #include "Logs.hpp"
@@ -91,15 +92,23 @@ void handler(SDL_Renderer* renderer)
   SDLEngine::Game::Sprite cloud(std::move(cloud_texture));
   cloud.move(50, 50);
 
-  SDLEngine::UI::TextBox tb(u"1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39",
-                            SDL_Rect{20, 20, 200, 200}, {"default", 20, {255, 0, 0, 255}});
-  SDLEngine::UI::Rectangle tb_back(tb.getRect(), {0, 0, 200, 200}, 10);
-  tb.setRectangle(std::move(tb_back));
+  // SDLEngine::UI::TextBox tb(u"1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38
+  // 39",
+  //                           SDL_Rect{20, 20, 200, 200}, {"default", 20, {255, 0, 0, 255}});
+  // SDLEngine::UI::Rectangle tb_back(tb.getRect(), {0, 0, 200, 200}, 10);
+  // tb.setBackground(std::move(tb_back));
   // SDL_Color rect_color = {0, 120, 120, 255};
   // int temp = 60;
   // SDLEngine::UI::Rectangle rectt({temp, temp, width - 2 * temp, height - 2 * temp}, rect_color, 10);
 
   SDLEngine::UI::TextBox fps_textbox(u"233", SDL_Rect{0, 0, 0, 0}, {"default", 20, {0, 255, 0, 255}});
+
+  SDLEngine::UI::Button test_button(u"нажми на меня", {50, 50, 100, 100}, {"default", 20, {255, 0, 0, 255}});
+  SDLEngine::UI::Rectangle button_back(test_button.getRect(), {0, 0, 200, 200}, 10);
+  test_button.setBackground(std::move(button_back));
+  test_button.setFunction([]() {
+    std::cout << "Pressed!\n";
+  });
 
   bool stopped = false;
   // double x = 0;
@@ -113,6 +122,7 @@ void handler(SDL_Renderer* renderer)
     SDL_Event event;
     while (SDL_PollEvent(&event))
     {
+      test_button.handleEvent(event);
       switch (event.type)
       {
       case SDL_QUIT:
@@ -137,7 +147,8 @@ void handler(SDL_Renderer* renderer)
     // rectt.render(renderer);
     cloud.render(renderer);
 
-    tb.render(renderer);
+    // tb.render(renderer);
+    test_button.render(renderer);
     fps_textbox.render(renderer);
     // x += 1e-2;
     // rect_color.r = 128 * std::sin(x) + 128;

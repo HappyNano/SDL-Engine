@@ -58,9 +58,11 @@ namespace SDLEngine
     public:
       TextBox(const std::u16string&, const SDL_Rect&, Font&&);
       virtual ~TextBox() = default;
+  
+      Rectangle& getBackground();
 
       void move(int, int) override;
-      void setRectangle(Rectangle&&);
+      void setBackground(Rectangle&&);
       virtual void handleEvent(const SDL_Event&) override;
 
       virtual void render(SDL_Renderer*) override;

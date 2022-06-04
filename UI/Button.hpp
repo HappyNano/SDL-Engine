@@ -17,13 +17,17 @@ namespace SDLEngine
       virtual ~Button() = default;
 
       void setFunction(func_type);
-      func_type& getFunction() const;
+      func_type getFunction() const;
 
       virtual void handleEvent(const SDL_Event&) override;
 
-      virtual void render(SDL_Renderer*) override;
-
     private:
+      SDL_Color normal_color_;
+      SDL_Color hovered_color_;
+      SDL_Color pressed_color_;
+      bool is_hovered_;
+      bool is_pressed_;
+
       func_type function_;
     };
   }

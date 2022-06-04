@@ -241,8 +241,11 @@ SDLEngine::UI::TextBox::TextBox(const std::u16string& text, const SDL_Rect& rect
 {
   doReCreateTextTextures();
 }
-
-void SDLEngine::UI::TextBox::setRectangle(Rectangle&& rect)
+SDLEngine::UI::Rectangle& SDLEngine::UI::TextBox::getBackground()
+{
+  return background_;
+}
+void SDLEngine::UI::TextBox::setBackground(Rectangle&& rect)
 {
   background_ = std::move(rect);
 }
