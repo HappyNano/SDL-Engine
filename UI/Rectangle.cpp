@@ -59,10 +59,12 @@ void SDLEngine::UI::Rectangle::setY(int y)
 void SDLEngine::UI::Rectangle::move(int offset_x, int offset_y)
 {
   texture_.move(offset_x, offset_y);
+  rect_ += {offset_x, offset_y};
 }
 void SDLEngine::UI::Rectangle::setRect(const SDL_Rect& rect)
 {
-  texture_.rect_ = rect;
+  rect_ = rect;
+  texture_.rect_ = rect_;
 }
 
 void SDLEngine::UI::Rectangle::setColor(SDL_Color color)
@@ -107,7 +109,7 @@ int SDLEngine::UI::Rectangle::getY() const
 }
 const SDL_Rect& SDLEngine::UI::Rectangle::getRect() const
 {
-  return texture_.rect_;
+  return rect_;
 }
 
 void SDLEngine::UI::Rectangle::handleEvent(const SDL_Event&)
