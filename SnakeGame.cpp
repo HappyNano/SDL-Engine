@@ -21,14 +21,31 @@ Game::SnakeGame::SnakeGame(SDL_Window* window, SDL_Renderer* renderer, int grid_
 
   cell_size_ = height_ / grid_size;
 
-  cell_ = UI::Rectangle({cell_size_ * 5, cell_size_ * 5, cell_size_, cell_size_}, {0, 230, 0, 255}, 1);
+  cell_ = UI::Rectangle({cell_size_ * 5 + offset(), cell_size_ * 5 + offset(), cell_size_, cell_size_}, {0, 230, 0, 255}, 1);
   snake_rects_.push_front(cell_.getRect());
   cell_.move(-cell_size_, 0);
   snake_rects_.push_front(cell_.getRect());
 
-  apple_ = UI::Rectangle({cell_size_ * 6, cell_size_ * 6, cell_size_, cell_size_}, {230, 0, 0, 255}, 1);
+  apple_ = UI::Rectangle({cell_size_ * 6 + offset(), cell_size_ * 6 + offset(), cell_size_, cell_size_}, {230, 0, 0, 255}, 1);
 
   running_ = true;
+}
+
+int Game::SnakeGame::offset() const
+{
+  return cell_size_ / 2;
+}
+
+void Game::SnakeGame::renderBounds()
+{
+  SDL_Color prev_color;
+  SDL_GetRenderDrawColor(renderer_, &prev_color.r, &prev_color.g, &prev_color.b, &prev_color.a);
+  SDL_SetRenderDrawColor(renderer_, 255, 255, 255, 255);
+  SDL_RenderDrawLine(renderer_, this->offset(), this->offset(), width_ - this->offset(), this->offset());
+  SDL_RenderDrawLine(renderer_, width_ - this->offset(), this->offset(), width_ - this->offset(), height_ - this->offset());
+  SDL_RenderDrawLine(renderer_, width_ - this->offset(), height_ - this->offset(), this->offset(), height_ - this->offset());
+  SDL_RenderDrawLine(renderer_, this->offset(), height_ - this->offset(), this->offset(), this->offset());
+  SDL_SetRenderDrawColor(renderer_, prev_color.r, prev_color.g, prev_color.b, prev_color.a);
 }
 
 void Game::SnakeGame::start()
@@ -94,14 +111,14 @@ void Game::SnakeGame::start()
       }
     }
     snake_rects_.back() += {offset.x, offset.y};
-    
+
     // Check collide with apple
     SDL_Rect apple_rect = apple_.getRect();
     if (snake_rects_.back() == apple_rect)
     {
       snake_rects_.push_front(tmp_rect);
-      apple_rect.x = cell_size_ * static_cast< int >(std::rand() % grid_size_);
-      apple_rect.y = cell_size_ * static_cast< int >(std::rand() % grid_size_);
+      apple_rect.x = cell_size_ * static_cast< int >(std::rand() % (grid_size_ - 1)) + this->offset();
+      apple_rect.y = cell_size_ * static_cast< int >(std::rand() % (grid_size_ - 1)) + this->offset();
       apple_.setRect(apple_rect);
     }
 
@@ -112,6 +129,9 @@ void Game::SnakeGame::start()
       cell_.render(renderer_);
     }
     apple_.render(renderer_);
+
+    renderBounds();
+
     SDL_RenderPresent(renderer_);
     SDL_Delay(200);
   }

@@ -25,6 +25,10 @@ namespace Game
     ~SnakeGame() = default;
 
     void start();
+  
+  protected:
+    int offset() const;
+    void renderBounds();
 
   private:
     SDL_Window* window_;
