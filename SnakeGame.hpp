@@ -21,7 +21,7 @@ namespace Game
   class SnakeGame
   {
   public:
-    SnakeGame(SDL_Window*, SDL_Renderer*);
+    SnakeGame(SDL_Window*, SDL_Renderer*, int);
     ~SnakeGame() = default;
 
     void start();
@@ -33,12 +33,15 @@ namespace Game
     int width_;
     int height_;
     int cell_size_;
+    int grid_size_;
     
     bool running_;
   
     UI::Rectangle cell_;
     std::deque< SDL_Rect > snake_rects_;
     Direction direction_;
+
+    UI::Rectangle apple_;
   };
 }
 

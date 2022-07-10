@@ -55,7 +55,9 @@ int main()
     TTF_Quit();
     return 1;
   }
-  Game::SnakeGame game(window, renderer);
+
+  std::srand(std::time(0));
+  Game::SnakeGame game(window, renderer, 20);
   game.start();
 
   SDL_DestroyRenderer(renderer);
