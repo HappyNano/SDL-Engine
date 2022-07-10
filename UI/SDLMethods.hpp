@@ -7,6 +7,7 @@
 namespace SDLEngine
 {
   SDL_Rect& operator+=(SDL_Rect&, const std::pair< int, int >&);
+  bool operator==(const SDL_Rect&, const SDL_Rect&);
   bool operator==(const SDL_Color&, const SDL_Color&);
 }
 
