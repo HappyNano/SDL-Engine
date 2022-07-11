@@ -3,6 +3,9 @@
 
 #include "SDLMethods.hpp"
 
+#include <algorithm>
+#include <functional>
+
 Game::SnakeGame::SnakeGame(SDL_Window* window, SDL_Renderer* renderer, int grid_size):
   window_(window),
   renderer_(renderer),
@@ -52,6 +55,7 @@ void Game::SnakeGame::start()
 {
   while (running_)
   {
+    Direction new_direction = direction_;
     SDL_Event event;
     while (SDL_PollEvent(&event))
     {
@@ -63,24 +67,41 @@ void Game::SnakeGame::start()
       case SDL_KEYDOWN: {
         switch (event.key.keysym.sym)
         {
-        case SDLK_w:
-          direction_ = Direction::UP;
-          break;
-        case SDLK_s:
-          direction_ = Direction::DOWN;
-          break;
-        case SDLK_a:
-          direction_ = Direction::LEFT;
-          break;
-        case SDLK_d:
-          direction_ = Direction::RIGHT;
-          break;
+        case SDLK_w: {
+          if (direction_ != Direction::DOWN)
+          {
+            new_direction = Direction::UP;
+          }
+        }
+        break;
+        case SDLK_s: {
+          if (direction_ != Direction::UP)
+          {
+            new_direction = Direction::DOWN;
+          }
+        }
+        break;
+        case SDLK_a: {
+          if (direction_ != Direction::RIGHT)
+          {
+            new_direction = Direction::LEFT;
+          }
+        }
+        break;
+        case SDLK_d: {
+          if (direction_ != Direction::LEFT)
+          {
+            new_direction = Direction::RIGHT;
+          }
+        }
+        break;
         default:
           break;
         }
       }
       }
     }
+    direction_ = new_direction;
 
     SDL_Rect offset{0, 0, 0, 0};
 
@@ -122,6 +143,18 @@ void Game::SnakeGame::start()
       apple_.setRect(apple_rect);
     }
 
+    const auto& new_head = snake_rects_.back();
+    bool out_of_border = new_head.x < cell_size_ / 2 || new_head.y < cell_size_ / 2 || new_head.x > (width_ - cell_size_ / 2)
+                         || new_head.y > (height_ - cell_size_ / 2);
+    auto equal_rects = [&](const SDL_Rect& rect) {
+      return rect == new_head;
+    };
+    bool intersections = snake_rects_.size() > 1 && std::any_of(snake_rects_.begin(), std::prev(snake_rects_.end()), equal_rects);
+    if (out_of_border || intersections)
+    {
+      running_ = false;
+    }
+
     SDL_RenderClear(renderer_);
     for (auto&& cell_rect: snake_rects_)
     {
@@ -133,6 +166,6 @@ void Game::SnakeGame::start()
     renderBounds();
 
     SDL_RenderPresent(renderer_);
-    SDL_Delay(200);
+    SDL_Delay(67);
   }
 }
