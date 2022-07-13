@@ -249,6 +249,14 @@ void SDLEngine::UI::TextBox::setBackground(Rectangle&& rect)
 {
   background_ = std::move(rect);
 }
+void SDLEngine::UI::TextBox::setWrapping(Wrapping wrapping)
+{
+  if (wrapping != wrapping_)
+  {
+    wrapping_ = wrapping;
+    wrapTextures();
+  }
+}
 void SDLEngine::UI::TextBox::move(int offset_x, int offset_y)
 {
   rect_ += {offset_x, offset_y};
@@ -256,6 +264,7 @@ void SDLEngine::UI::TextBox::move(int offset_x, int offset_y)
   {
     texture.move(offset_x, offset_y);
   }
+  background_.move(offset_x, offset_y);
 }
 void SDLEngine::UI::TextBox::handleEvent(const SDL_Event&)
 {}
@@ -281,9 +290,20 @@ void SDLEngine::UI::TextBox::reCreateTextTextures(SDL_Renderer* renderer)
   auto builder = std::bind(&Surface::createTexture, std::placeholders::_1, renderer);
   std::transform(text_surfaces_.begin(), text_surfaces_.end(), std::back_inserter(text_textures_), builder);
 
+  wrapTextures();
+}
+
+void SDLEngine::UI::TextBox::doReCreateTextTextures()
+{
+  reCreateTextSurfaces();
+  clearTextTextures();
+}
+
+void SDLEngine::UI::TextBox::wrapTextures()
+{
   SDL_Rect rect = rect_;
-  rect.h = std::accumulate(text_textures_.begin(), text_textures_.end(), 0, [&](int result, const Texture& texture) {
-    return result + texture.rect_.h + indent_;
+  rect.h = std::accumulate(text_surfaces_.begin(), text_surfaces_.end(), 0, [&](int result, const Surface& texture) {
+    return result + texture.getRect().h + indent_;
   });
   rect.h = rect.h - indent_ + padding_[0] + padding_[2]; // std::max(rect.h - indent_ + padding_[0] + padding_[2], height_);
   // rect.w = std::max(rect.w, (int)width_);
@@ -333,10 +353,4 @@ void SDLEngine::UI::TextBox::reCreateTextTextures(SDL_Renderer* renderer)
   default:
     break;
   }
-}
-
-void SDLEngine::UI::TextBox::doReCreateTextTextures()
-{
-  reCreateTextSurfaces();
-  clearTextTextures();
 }

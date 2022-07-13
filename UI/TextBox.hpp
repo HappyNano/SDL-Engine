@@ -63,6 +63,7 @@ namespace SDLEngine
 
       void move(int, int) override;
       void setBackground(Rectangle&&);
+      void setWrapping(Wrapping);
       virtual void handleEvent(const SDL_Event&) override;
 
       virtual void render(SDL_Renderer*) override;
@@ -77,6 +78,7 @@ namespace SDLEngine
       void clearTextTextures();
       void reCreateTextTextures(SDL_Renderer*);
       void doReCreateTextTextures() override;
+      void wrapTextures();
     };
   }
 }
