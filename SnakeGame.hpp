@@ -29,6 +29,11 @@ namespace Game
   protected:
     int offset() const;
     void renderBounds();
+    void renderAll();
+    void handleEvents();
+    void restartStats();
+    
+    void nextStep();
 
   private:
     SDL_Window* window_;
@@ -40,6 +45,7 @@ namespace Game
     int grid_size_;
     
     bool running_;
+    bool alive_;
   
     UI::Rectangle cell_;
     std::deque< SDL_Rect > snake_rects_;

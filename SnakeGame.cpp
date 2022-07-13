@@ -14,6 +14,7 @@ Game::SnakeGame::SnakeGame(SDL_Window* window, SDL_Renderer* renderer, int grid_
   cell_size_{0},
   grid_size_{grid_size},
   running_{false},
+  alive_{false},
   cell_{},
   snake_rects_{},
   direction_{Direction::RIGHT},
@@ -23,13 +24,6 @@ Game::SnakeGame::SnakeGame(SDL_Window* window, SDL_Renderer* renderer, int grid_
   SDL_GetWindowSize(window, &width_, &height_);
 
   cell_size_ = height_ / grid_size;
-
-  cell_ = UI::Rectangle({cell_size_ * 5 + offset(), cell_size_ * 5 + offset(), cell_size_, cell_size_}, {0, 230, 0, 255}, 1);
-  snake_rects_.push_front(cell_.getRect());
-  cell_.move(-cell_size_, 0);
-  snake_rects_.push_front(cell_.getRect());
-
-  apple_ = UI::Rectangle({cell_size_ * 6 + offset(), cell_size_ * 6 + offset(), cell_size_, cell_size_}, {230, 0, 0, 255}, 1);
 
   running_ = true;
 }
@@ -51,58 +45,103 @@ void Game::SnakeGame::renderBounds()
   SDL_SetRenderDrawColor(renderer_, prev_color.r, prev_color.g, prev_color.b, prev_color.a);
 }
 
+void Game::SnakeGame::renderAll()
+{
+  SDL_RenderClear(renderer_);
+  for (auto&& cell_rect: snake_rects_)
+  {
+    cell_.setRect(cell_rect);
+    cell_.render(renderer_);
+  }
+  apple_.render(renderer_);
+
+  renderBounds();
+
+  SDL_RenderPresent(renderer_);
+}
+
+void Game::SnakeGame::handleEvents()
+{
+  Direction new_direction = direction_;
+  SDL_Event event;
+  while (SDL_PollEvent(&event))
+  {
+    switch (event.type)
+    {
+    case SDL_QUIT:
+      running_ = false;
+      break;
+    case SDL_KEYDOWN: {
+      switch (event.key.keysym.sym)
+      {
+      case SDLK_w: {
+        if (direction_ != Direction::DOWN)
+        {
+          new_direction = Direction::UP;
+        }
+      }
+      break;
+      case SDLK_s: {
+        if (direction_ != Direction::UP)
+        {
+          new_direction = Direction::DOWN;
+        }
+      }
+      break;
+      case SDLK_a: {
+        if (direction_ != Direction::RIGHT)
+        {
+          new_direction = Direction::LEFT;
+        }
+      }
+      break;
+      case SDLK_d: {
+        if (direction_ != Direction::LEFT)
+        {
+          new_direction = Direction::RIGHT;
+        }
+      }
+      break;
+      default:
+        break;
+      }
+    }
+    }
+  }
+  direction_ = new_direction;
+}
+
+void Game::SnakeGame::restartStats()
+{
+  snake_rects_.clear();
+  cell_ = UI::Rectangle({cell_size_ * 5 + offset(), cell_size_ * 5 + offset(), cell_size_, cell_size_}, {0, 230, 0, 255}, 1);
+  snake_rects_.push_front(cell_.getRect());
+  cell_.move(-cell_size_, 0);
+  snake_rects_.push_front(cell_.getRect());
+  direction_ = Direction::RIGHT;
+
+  apple_ = UI::Rectangle({cell_size_ * 6 + offset(), cell_size_ * 6 + offset(), cell_size_, cell_size_}, {230, 0, 0, 255}, 1);
+
+  alive_ = true;
+}
+
 void Game::SnakeGame::start()
 {
   while (running_)
   {
-    Direction new_direction = direction_;
-    SDL_Event event;
-    while (SDL_PollEvent(&event))
+    if (!alive_)
     {
-      switch (event.type)
-      {
-      case SDL_QUIT:
-        running_ = false;
-        break;
-      case SDL_KEYDOWN: {
-        switch (event.key.keysym.sym)
-        {
-        case SDLK_w: {
-          if (direction_ != Direction::DOWN)
-          {
-            new_direction = Direction::UP;
-          }
-        }
-        break;
-        case SDLK_s: {
-          if (direction_ != Direction::UP)
-          {
-            new_direction = Direction::DOWN;
-          }
-        }
-        break;
-        case SDLK_a: {
-          if (direction_ != Direction::RIGHT)
-          {
-            new_direction = Direction::LEFT;
-          }
-        }
-        break;
-        case SDLK_d: {
-          if (direction_ != Direction::LEFT)
-          {
-            new_direction = Direction::RIGHT;
-          }
-        }
-        break;
-        default:
-          break;
-        }
-      }
-      }
+      restartStats();
     }
-    direction_ = new_direction;
+    this->handleEvents();
+    nextStep();
+  }
+}
 
+void Game::SnakeGame::nextStep()
+{
+  if (alive_)
+  {
     SDL_Rect offset{0, 0, 0, 0};
 
     switch (direction_)
@@ -144,28 +183,18 @@ void Game::SnakeGame::start()
     }
 
     const auto& new_head = snake_rects_.back();
-    bool out_of_border = new_head.x < cell_size_ / 2 || new_head.y < cell_size_ / 2 || new_head.x > (width_ - cell_size_ / 2)
-                         || new_head.y > (height_ - cell_size_ / 2);
+    bool out_of_border = new_head.x < cell_size_ / 2 || new_head.y < cell_size_ / 2 || new_head.x >= std::floor(width_ - cell_size_ / 1.9)
+                         || new_head.y >= std::floor(height_ - cell_size_ / 1.9);
     auto equal_rects = [&](const SDL_Rect& rect) {
       return rect == new_head;
     };
     bool intersections = snake_rects_.size() > 1 && std::any_of(snake_rects_.begin(), std::prev(snake_rects_.end()), equal_rects);
     if (out_of_border || intersections)
     {
-      running_ = false;
+      alive_ = false;
     }
 
-    SDL_RenderClear(renderer_);
-    for (auto&& cell_rect: snake_rects_)
-    {
-      cell_.setRect(cell_rect);
-      cell_.render(renderer_);
-    }
-    apple_.render(renderer_);
-
-    renderBounds();
-
-    SDL_RenderPresent(renderer_);
+    renderAll();
     SDL_Delay(67);
   }
 }
