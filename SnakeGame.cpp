@@ -31,7 +31,7 @@ Game::SnakeGame::SnakeGame(SDL_Window* window, SDL_Renderer* renderer, int grid_
   auto tmp_but = new UI::Button{u"Start game", {50, 50, 100, 50}, {"default", 20, {255, 0, 0, 255}}};
   SDLEngine::UI::Rectangle button_background(tmp_but->getRect(), {0, 0, 200, 200}, 5);
   tmp_but->setBackground(std::move(button_background));
-  tmp_but->setFunction(std::bind(&SnakeGame::setAlive, std::addressof(*this), true));
+  tmp_but->setFunction(std::bind(&SnakeGame::restartStats, std::addressof(*this)));
   start_game_button_ = std::unique_ptr< UI::Button >(tmp_but);
 
   running_ = true;
@@ -221,9 +221,4 @@ void Game::SnakeGame::nextStep()
     renderGame();
     SDL_Delay(67);
   }
-}
-
-void Game::SnakeGame::setAlive(bool alive)
-{
-  alive_ = alive;
 }

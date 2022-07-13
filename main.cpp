@@ -60,8 +60,10 @@ int main()
 
   SDLEngine::Assets::Instance().checkAndSaveFonts("default", "assets/ff.ttf", 12);
 
-  Game::SnakeGame game(window, renderer, 20);
-  game.start();
+  {
+    Game::SnakeGame game(window, renderer, 20);
+    game.start();
+  }
 
   SDL_DestroyRenderer(renderer);
   SDL_DestroyWindow(window);

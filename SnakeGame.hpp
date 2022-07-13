@@ -38,8 +38,6 @@ namespace Game
 
     void nextStep();
 
-    void setAlive(bool);
-
   private:
     SDL_Window* window_;
     SDL_Renderer* renderer_;
