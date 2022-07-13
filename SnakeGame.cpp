@@ -29,6 +29,9 @@ Game::SnakeGame::SnakeGame(SDL_Window* window, SDL_Renderer* renderer, int grid_
   cell_size_ = height_ / grid_size;
 
   auto tmp_but = new UI::Button{u"Start game", {50, 50, 100, 50}, {"default", 20, {255, 0, 0, 255}}};
+  tmp_but->setWrapping(UI::Wrapping::centerEquator);
+  tmp_but->setX(width_ / 2 - tmp_but->getWidth() / 2);
+  tmp_but->setY(height_ / 2 - tmp_but->getHeight() / 2);
   SDLEngine::UI::Rectangle button_background(tmp_but->getRect(), {0, 0, 200, 200}, 5);
   tmp_but->setBackground(std::move(button_background));
   tmp_but->setFunction(std::bind(&SnakeGame::restartStats, std::addressof(*this)));
@@ -152,7 +155,6 @@ void Game::SnakeGame::start()
     if (!alive_)
     {
       renderStart();
-      // restartStats();
     }
     else
     {
