@@ -57,6 +57,9 @@ int main()
   }
 
   std::srand(std::time(0));
+
+  SDLEngine::Assets::Instance().checkAndSaveFonts("default", "assets/ff.ttf", 12);
+
   Game::SnakeGame game(window, renderer, 20);
   game.start();
 

@@ -6,6 +6,8 @@
 #include <algorithm>
 #include <functional>
 
+#include "Assets.hpp"
+
 Game::SnakeGame::SnakeGame(SDL_Window* window, SDL_Renderer* renderer, int grid_size):
   window_(window),
   renderer_(renderer),
@@ -18,12 +20,19 @@ Game::SnakeGame::SnakeGame(SDL_Window* window, SDL_Renderer* renderer, int grid_
   cell_{},
   snake_rects_{},
   direction_{Direction::RIGHT},
-  apple_{}
+  apple_{},
+  start_game_button_{}
 {
   SDL_assert(window && renderer);
   SDL_GetWindowSize(window, &width_, &height_);
 
   cell_size_ = height_ / grid_size;
+
+  auto tmp_but = new UI::Button{u"Start game", {50, 50, 100, 50}, {"default", 20, {255, 0, 0, 255}}};
+  SDLEngine::UI::Rectangle button_background(tmp_but->getRect(), {0, 0, 200, 200}, 5);
+  tmp_but->setBackground(std::move(button_background));
+  tmp_but->setFunction(std::bind(&SnakeGame::setAlive, std::addressof(*this), true));
+  start_game_button_ = std::unique_ptr< UI::Button >(tmp_but);
 
   running_ = true;
 }
@@ -31,6 +40,13 @@ Game::SnakeGame::SnakeGame(SDL_Window* window, SDL_Renderer* renderer, int grid_
 int Game::SnakeGame::offset() const
 {
   return cell_size_ / 2;
+}
+
+void Game::SnakeGame::renderStart()
+{
+  SDL_RenderClear(renderer_);
+  start_game_button_->render(renderer_);
+  SDL_RenderPresent(renderer_);
 }
 
 void Game::SnakeGame::renderBounds()
@@ -45,7 +61,7 @@ void Game::SnakeGame::renderBounds()
   SDL_SetRenderDrawColor(renderer_, prev_color.r, prev_color.g, prev_color.b, prev_color.a);
 }
 
-void Game::SnakeGame::renderAll()
+void Game::SnakeGame::renderGame()
 {
   SDL_RenderClear(renderer_);
   for (auto&& cell_rect: snake_rects_)
@@ -66,6 +82,10 @@ void Game::SnakeGame::handleEvents()
   SDL_Event event;
   while (SDL_PollEvent(&event))
   {
+    if (!alive_)
+    {
+      start_game_button_->handleEvent(event);
+    }
     switch (event.type)
     {
     case SDL_QUIT:
@@ -131,10 +151,14 @@ void Game::SnakeGame::start()
   {
     if (!alive_)
     {
-      restartStats();
+      renderStart();
+      // restartStats();
+    }
+    else
+    {
+      nextStep();
     }
     this->handleEvents();
-    nextStep();
   }
 }
 
@@ -194,7 +218,12 @@ void Game::SnakeGame::nextStep()
       alive_ = false;
     }
 
-    renderAll();
+    renderGame();
     SDL_Delay(67);
   }
+}
+
+void Game::SnakeGame::setAlive(bool alive)
+{
+  alive_ = alive;
 }

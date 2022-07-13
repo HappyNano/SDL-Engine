@@ -3,8 +3,10 @@
 
 #include <SDL2/SDL.h>
 #include <deque>
+#include <memory>
 
 #include <UI/Rectangle.hpp>
+#include <UI/Button.hpp>
 
 namespace Game
 {
@@ -25,15 +27,18 @@ namespace Game
     ~SnakeGame() = default;
 
     void start();
-  
+
   protected:
     int offset() const;
+    void renderStart();
     void renderBounds();
-    void renderAll();
+    void renderGame();
     void handleEvents();
     void restartStats();
-    
+
     void nextStep();
+
+    void setAlive(bool);
 
   private:
     SDL_Window* window_;
@@ -43,15 +48,17 @@ namespace Game
     int height_;
     int cell_size_;
     int grid_size_;
-    
+
     bool running_;
     bool alive_;
-  
+
     UI::Rectangle cell_;
     std::deque< SDL_Rect > snake_rects_;
     Direction direction_;
 
     UI::Rectangle apple_;
+
+    std::unique_ptr< UI::Button > start_game_button_;
   };
 }
 
