@@ -17,11 +17,14 @@ Game::SnakeGame::SnakeGame(SDL_Window* window, SDL_Renderer* renderer, int grid_
   grid_size_{grid_size},
   running_{false},
   alive_{false},
+  points_{0},
+  record_{0},
   cell_{},
   snake_rects_{},
   direction_{Direction::RIGHT},
   apple_{},
-  start_game_button_{}
+  start_game_button_{},
+  record_textbox_{}
 {
   SDL_assert(window && renderer);
   SDL_GetWindowSize(window, &width_, &height_);
@@ -37,6 +40,12 @@ Game::SnakeGame::SnakeGame(SDL_Window* window, SDL_Renderer* renderer, int grid_
   tmp_but->setFunction(std::bind(&SnakeGame::restartStats, std::addressof(*this)));
   start_game_button_ = std::unique_ptr< UI::Button >(tmp_but);
 
+  auto tmp_textbox = new UI::TextBox(u"0", tmp_but->getRect(), {"default", 20, {255, 0, 0, 255}});
+  tmp_textbox->setWrapping(UI::Wrapping::centerEquator);
+  tmp_textbox->setX(width_ / 2 - tmp_textbox->getWidth() / 2);
+  tmp_textbox->setY(height_ / 2 - tmp_textbox->getHeight() / 2 - tmp_but->getHeight() - 10);
+  record_textbox_ = std::unique_ptr< UI::TextBox >(tmp_textbox);
+
   running_ = true;
 }
 
@@ -49,6 +58,7 @@ void Game::SnakeGame::renderStart()
 {
   SDL_RenderClear(renderer_);
   start_game_button_->render(renderer_);
+  record_textbox_->render(renderer_);
   SDL_RenderPresent(renderer_);
 }
 
@@ -206,6 +216,7 @@ void Game::SnakeGame::nextStep()
       apple_rect.x = cell_size_ * static_cast< int >(std::rand() % (grid_size_ - 1)) + this->offset();
       apple_rect.y = cell_size_ * static_cast< int >(std::rand() % (grid_size_ - 1)) + this->offset();
       apple_.setRect(apple_rect);
+      ++points_;
     }
 
     const auto& new_head = snake_rects_.back();
@@ -218,6 +229,7 @@ void Game::SnakeGame::nextStep()
     if (out_of_border || intersections)
     {
       alive_ = false;
+      record_ = std::max(record_, points_);
     }
 
     renderGame();

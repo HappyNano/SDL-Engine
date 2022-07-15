@@ -50,6 +50,9 @@ namespace Game
     bool running_;
     bool alive_;
 
+    int points_;
+    int record_;
+
     UI::Rectangle cell_;
     std::deque< SDL_Rect > snake_rects_;
     Direction direction_;
@@ -57,6 +60,7 @@ namespace Game
     UI::Rectangle apple_;
 
     std::unique_ptr< UI::Button > start_game_button_;
+    std::unique_ptr< UI::TextBox > record_textbox_;
   };
 }
 
