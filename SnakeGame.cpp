@@ -8,6 +8,18 @@
 
 #include "Assets.hpp"
 
+#include <locale>
+#include <codecvt>
+
+namespace
+{
+  std::u16string to_u16string(int const& i)
+  {
+    std::wstring_convert< std::codecvt_utf8_utf16< char16_t, 0x10ffff, std::little_endian >, char16_t > conv;
+    return conv.from_bytes(std::to_string(i));
+  }
+}
+
 Game::SnakeGame::SnakeGame(SDL_Window* window, SDL_Renderer* renderer, int grid_size):
   window_(window),
   renderer_(renderer),
@@ -40,7 +52,10 @@ Game::SnakeGame::SnakeGame(SDL_Window* window, SDL_Renderer* renderer, int grid_
   tmp_but->setFunction(std::bind(&SnakeGame::restartStats, std::addressof(*this)));
   start_game_button_ = std::unique_ptr< UI::Button >(tmp_but);
 
-  auto tmp_textbox = new UI::TextBox(u"0", tmp_but->getRect(), {"default", 20, {255, 0, 0, 255}});
+  auto font = UI::Font{"default", 20, {255, 0, 0, 255}};
+  auto tmp_rect = tmp_but->getRect();
+  tmp_rect.w = font.getTextWidth(u"Рекорд - 100");
+  auto tmp_textbox = new UI::TextBox(::to_u16string(record_), tmp_rect, std::move(font));
   tmp_textbox->setWrapping(UI::Wrapping::centerEquator);
   tmp_textbox->setX(width_ / 2 - tmp_textbox->getWidth() / 2);
   tmp_textbox->setY(height_ / 2 - tmp_textbox->getHeight() / 2 - tmp_but->getHeight() - 10);
@@ -155,6 +170,8 @@ void Game::SnakeGame::restartStats()
 
   apple_ = UI::Rectangle({cell_size_ * 6 + offset(), cell_size_ * 6 + offset(), cell_size_, cell_size_}, {230, 0, 0, 255}, 1);
 
+  points_ = 0;
+
   alive_ = true;
 }
 
@@ -230,6 +247,7 @@ void Game::SnakeGame::nextStep()
     {
       alive_ = false;
       record_ = std::max(record_, points_);
+      record_textbox_->setText(u"Рекорд - " + ::to_u16string(record_));
     }
 
     renderGame();
