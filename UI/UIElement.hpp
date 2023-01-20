@@ -10,12 +10,14 @@ namespace SDLEngine
     class UIElement
     {
     public:
-      virtual void setWidth(int) = 0;
-      virtual void setHeight(int) = 0;
-      virtual void setX(int) = 0;
-      virtual void setY(int) = 0;
-      virtual void move(int, int) = 0;
-      virtual void setRect(const SDL_Rect&) = 0;
+      using this_t = UIElement;
+
+      virtual this_t& setWidth(int) = 0;
+      virtual this_t& setHeight(int) = 0;
+      virtual this_t& setX(int) = 0;
+      virtual this_t& setY(int) = 0;
+      virtual this_t& move(int, int) = 0;
+      virtual this_t& setRect(const SDL_Rect&) = 0;
 
       virtual int getWidth() const = 0;
       virtual int getHeight() const = 0;

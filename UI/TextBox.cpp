@@ -102,33 +102,39 @@ SDLEngine::UI::TextBoxBase::~TextBoxBase()
   clearTextSurfaces();
 }
 
-void SDLEngine::UI::TextBoxBase::setWidth(int width)
+typename SDLEngine::UI::TextBoxBase::this_t& SDLEngine::UI::TextBoxBase::setWidth(int width)
 {
   rect_.w = width;
   doReCreateTextTextures();
+  return *this;
 }
-void SDLEngine::UI::TextBoxBase::setHeight(int heigth)
+typename SDLEngine::UI::TextBoxBase::this_t& SDLEngine::UI::TextBoxBase::setHeight(int heigth)
 {
   rect_.h = heigth;
   doReCreateTextTextures();
+  return *this;
 }
-void SDLEngine::UI::TextBoxBase::setX(int x)
+typename SDLEngine::UI::TextBoxBase::this_t& SDLEngine::UI::TextBoxBase::setX(int x)
 {
   move(x - getX(), 0);
+  return *this;
 }
-void SDLEngine::UI::TextBoxBase::setY(int y)
+typename SDLEngine::UI::TextBoxBase::this_t& SDLEngine::UI::TextBoxBase::setY(int y)
 {
   move(0, y - getY());
+  return *this;
 }
-void SDLEngine::UI::TextBoxBase::setRect(const SDL_Rect& rect)
+typename SDLEngine::UI::TextBoxBase::this_t& SDLEngine::UI::TextBoxBase::setRect(const SDL_Rect& rect)
 {
   rect_ = rect;
   doReCreateTextTextures();
+  return *this;
 }
-void SDLEngine::UI::TextBoxBase::setText(const std::u16string& text)
+typename SDLEngine::UI::TextBoxBase::this_t& SDLEngine::UI::TextBoxBase::setText(const std::u16string& text)
 {
   text_ = text;
   doReCreateTextTextures();
+  return *this;
 }
 
 int SDLEngine::UI::TextBoxBase::getWidth() const
@@ -257,7 +263,7 @@ void SDLEngine::UI::TextBox::setWrapping(Wrapping wrapping)
     wrapTextures();
   }
 }
-void SDLEngine::UI::TextBox::move(int offset_x, int offset_y)
+typename SDLEngine::UI::TextBox::this_t& SDLEngine::UI::TextBox::move(int offset_x, int offset_y)
 {
   rect_ += {offset_x, offset_y};
   for (auto&& texture: text_textures_)
@@ -265,6 +271,7 @@ void SDLEngine::UI::TextBox::move(int offset_x, int offset_y)
     texture.move(offset_x, offset_y);
   }
   background_.move(offset_x, offset_y);
+  return *this;
 }
 void SDLEngine::UI::TextBox::handleEvent(const SDL_Event&)
 {}

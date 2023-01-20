@@ -18,16 +18,18 @@ namespace SDLEngine
     class TextBoxBase: public UIElement
     {
     public:
+      using this_t = TextBoxBase;
+
       TextBoxBase(const std::u16string&, const SDL_Rect&, Font&&);
       virtual ~TextBoxBase();
 
-      void setWidth(int) override;
-      void setHeight(int) override;
-      virtual void setX(int) override;
-      virtual void setY(int) override;
-      virtual void move(int, int) = 0;
-      void setRect(const SDL_Rect&) override;
-      void setText(const std::u16string&);
+      this_t& setWidth(int) override;
+      this_t& setHeight(int) override;
+      virtual this_t& setX(int) override;
+      virtual this_t& setY(int) override;
+      virtual this_t& move(int, int) = 0;
+      this_t& setRect(const SDL_Rect&) override;
+      this_t& setText(const std::u16string&);
 
       int getWidth() const override;
       int getHeight() const override;
@@ -56,12 +58,14 @@ namespace SDLEngine
     class TextBox: public TextBoxBase
     {
     public:
+      using this_t = TextBox;
+
       TextBox(const std::u16string&, const SDL_Rect&, Font&&);
       virtual ~TextBox() = default;
   
       Rectangle& getBackground();
 
-      void move(int, int) override;
+      this_t& move(int, int) override;
       void setBackground(Rectangle&&);
       void setWrapping(Wrapping);
       virtual void handleEvent(const SDL_Event&) override;
