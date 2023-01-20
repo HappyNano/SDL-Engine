@@ -7,7 +7,7 @@
 #include <vector>
 #include "Texture.hpp"
 #include "Font.hpp"
-#include "UIElements.hpp"
+#include "UIElement.hpp"
 #include "Wrapping.hpp"
 #include "Rectangle.hpp"
 
@@ -15,7 +15,7 @@ namespace SDLEngine
 {
   namespace UI
   {
-    class TextBoxBase: public UIElements
+    class TextBoxBase: public UIElement
     {
     public:
       TextBoxBase(const std::u16string&, const SDL_Rect&, Font&&);

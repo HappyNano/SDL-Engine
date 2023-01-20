@@ -1,7 +1,7 @@
 #ifndef SDL_ENGINE_UI_RECTANGLE_HPP
 #define SDL_ENGINE_UI_RECTANGLE_HPP
 
-#include "UIElements.hpp"
+#include "UIElement.hpp"
 #include "Surface.hpp"
 #include "Texture.hpp"
 
@@ -9,7 +9,7 @@ namespace SDLEngine
 {
   namespace UI
   {
-    class Rectangle: UIElements
+    class Rectangle: UIElement
     {
     public:
       using this_t = Rectangle;

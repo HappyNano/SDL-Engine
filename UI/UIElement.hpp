@@ -1,5 +1,5 @@
-#ifndef SDL_ENGINE_UI_ELEMENTS_HPP
-#define SDL_ENGINE_UI_ELEMENTS_HPP
+#ifndef SDL_ENGINE_UI_ELEMENT_HPP
+#define SDL_ENGINE_UI_ELEMENT_HPP
 
 #include <SDL2/SDL.h>
 
@@ -7,7 +7,7 @@ namespace SDLEngine
 {
   namespace UI
   {
-    class UIElements
+    class UIElement
     {
     public:
       virtual void setWidth(int) = 0;
@@ -28,8 +28,8 @@ namespace SDLEngine
       virtual void render(SDL_Renderer*) = 0;
 
     protected:
-      UIElements() = default;
-      virtual ~UIElements() = default;
+      UIElement() = default;
+      virtual ~UIElement() = default;
     };
   }
 }
