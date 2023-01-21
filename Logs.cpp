@@ -8,7 +8,7 @@
 
 SDLEngine::Logs SDLEngine::logs = SDLEngine::Logs{};
 
-explicit SDLEngine::LogTag::LogTag(const std::string& s):
+SDLEngine::LogTag::LogTag(const std::string& s):
   tag{s}
 {}
 
@@ -31,7 +31,7 @@ SDLEngine::Logs& SDLEngine::operator<<(Logs& l, const std::string& msg)
 {
   if (!l.normal)
   {
-    return;
+    return l;
   }
   l.normal << std::left;
   switch (l.getLevel())
