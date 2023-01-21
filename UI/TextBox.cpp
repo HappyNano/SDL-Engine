@@ -172,7 +172,7 @@ void SDLEngine::UI::TextBoxBase::addText(const std::u16string& text)
   }
   else
   {
-    Logs::print("TextBox", "Failed to render text!", LogLevel::ERROR);
+    logs << LogLevel::ERROR << LogTag{"TextBox"} << "Failed to render text!";
   }
 }
 

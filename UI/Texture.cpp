@@ -67,7 +67,7 @@ void SDLEngine::UI::Texture::render(SDL_Renderer* renderer)
 {
   if (!texture_)
   {
-    Logs::print("Texture", "This texture cannot be rendered (nullptr)!", LogLevel::ERROR);
+    logs << LogLevel::ERROR << LogTag{"Texture"} << "This texture cannot be rendered (nullptr)!";
     return;
   }
   SDL_RenderCopy(renderer, texture_, NULL, &rect_);

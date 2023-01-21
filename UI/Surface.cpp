@@ -45,7 +45,7 @@ SDL_Texture* SDLEngine::UI::Surface::createTexture(SDL_Renderer* renderer)
 {
   if (!surface_)
   {
-    Logs::print("Surface", "Texture cannot be crated from this surface!", LogLevel::ERROR);
+    logs << LogLevel::ERROR << LogTag{"Surface"} << "Texture cannot be crated from this surface!";
   }
   return SDL_CreateTextureFromSurface(renderer, surface_);
 }

@@ -21,9 +21,13 @@
 #include "Logs.hpp"
 #include "Timer.hpp"
 
+using SDLEngine::LogLevel;
+using SDLEngine::logs;
+using SDLEngine::LogTag;
+
 void print_sdlerror()
 {
-  SDLEngine::Logs::print("EngineSDL", SDL_GetError(), SDLEngine::LogLevel::ERROR);
+  logs << LogLevel::ERROR << LogTag{"EngineSDL"} << SDL_GetError();
 }
 
 namespace
@@ -44,11 +48,11 @@ namespace
     {
       if (SDLEngine::Assets::Instance().checkAndSaveTextures(renderer, asset_name.first, asset_name.second))
       {
-        SDLEngine::Logs::print("Textures", "Loaded texture: " + asset_name.second, SDLEngine::LogLevel::INFO);
+        logs << LogLevel::INFO << LogTag{"Textures"} << ("Loaded texture: " + asset_name.second);
       }
       else
       {
-        SDLEngine::Logs::print("Textures", "Failed to load texture: " + asset_name.second, SDLEngine::LogLevel::ERROR);
+        logs << LogLevel::ERROR << LogTag{"Textures"} << ("Failed to load texture: " + asset_name.second);
         is_ok = false;
       }
     }
@@ -69,11 +73,11 @@ namespace
     {
       if (SDLEngine::Assets::Instance().checkAndSaveFonts(font_name.first, font_name.second, 1))
       {
-        SDLEngine::Logs::print("Fonts", "Loaded font: " + font_name.second, SDLEngine::LogLevel::INFO);
+        logs << LogLevel::INFO << LogTag{"Fonts"} << ("Loaded font: " + font_name.second);
       }
       else
       {
-        SDLEngine::Logs::print("Fonts", "Failed to load font: " + font_name.second, SDLEngine::LogLevel::ERROR);
+        logs << LogLevel::ERROR << LogTag{"Fonts"} << ("Failed to load font: " + font_name.second);
         is_ok = false;
       }
     }
@@ -87,7 +91,7 @@ constexpr int height = 300;
 
 void handler(SDL_Renderer* renderer)
 {
-  SDLEngine::Logs::Instance(std::cout, false);
+  // SDLEngine::Logs::Instance(std::cout, false);
   SDLEngine::UI::Texture cloud_texture{SDLEngine::Assets::Instance().getTextureByName(renderer, "cloud_small")};
   SDLEngine::Game::Sprite cloud(std::move(cloud_texture));
   cloud.move(50, 50);
@@ -176,7 +180,7 @@ int main()
   if (SDL_Init(SDL_INIT_EVERYTHING) < 0 || TTF_Init() < 0)
   {
     print_sdlerror();
-    SDLEngine::Logs::print("SDL", "Bad initialization!", SDLEngine::LogLevel::ERROR);
+    logs << LogLevel::ERROR << LogTag{"SDL"} << "Bad initialization!";
     return 1;
   }
 

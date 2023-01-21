@@ -91,7 +91,7 @@ typename SDLEngine::UI::Rectangle::this_t& SDLEngine::UI::Rectangle::setRadius(i
   }
   if (round_radius < 0)
   {
-    Logs::print("Rectangle", "Round radius must be non-negative!", LogLevel::ERROR);
+    logs << LogLevel::ERROR << LogTag{"Rectangle"} << "Round radius must be non-negative!";
     throw std::logic_error("Round radius must be non-negative!");
   }
   round_radius_ = round_radius;
