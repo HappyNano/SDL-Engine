@@ -16,35 +16,18 @@ namespace SDLEngine
   struct LogTag
   {
     LogTag() = default;
-
-    explicit LogTag(const std::string& s):
-      tag{s}
-    {}
-
-    const std::string& str() const
-    {
-      return tag;
-    }
+    explicit LogTag(const std::string&);
+    const std::string& str() const;
 
   private:
     std::string tag;
   };
 
-  struct LogsBase
-  {
-    static void print(const std::string&, const std::string&, LogLevel);
-    void doPrint(const std::string&, const std::string&, LogLevel);
-
-  protected:
-    static LogsBase& Instance();
-
-    std::ostream& normal = std::cout;
-    std::ostream& error = std::cerr;
-    bool colored;
-  };
-
   struct Logs
   {
+    std::ostream& normal = std::cout;
+    std::ostream& error = std::cerr;
+
     friend Logs& operator<<(Logs& l, LogLevel level)
     {
       l.level_ = level;

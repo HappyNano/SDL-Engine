@@ -8,40 +8,13 @@
 
 SDLEngine::Logs SDLEngine::logs = SDLEngine::Logs{};
 
-SDLEngine::LogsBase& SDLEngine::LogsBase::Instance()
-{
-  static LogsBase singleton;
-  return singleton;
-}
+explicit SDLEngine::LogTag::LogTag(const std::string& s):
+  tag{s}
+{}
 
-void SDLEngine::LogsBase::print(const std::string& tag, const std::string& text, LogLevel level)
+const std::string& SDLEngine::LogTag::str() const
 {
-  Instance().doPrint(tag, text, level);
-}
-
-void SDLEngine::LogsBase::doPrint(const std::string& tag, const std::string& text, LogLevel level)
-{
-  if (!normal)
-  {
-    return;
-  }
-  normal << std::left;
-  switch (level)
-  {
-  case LogLevel::ERROR:
-    normal << RED << std::setw(7) << "ERROR ";
-    break;
-  case LogLevel::INFO:
-    normal << YELLOW << std::setw(7) << "INFO ";
-    break;
-  case LogLevel::DEBUG:
-    normal << std::setw(7) << "DEBUG ";
-    break;
-  default:
-    break;
-  }
-  normal << '[' << std::setw(10) << tag << "] ";
-  normal << std::setw(100) << text << RESET << "\n";
+  return tag;
 }
 
 const SDLEngine::LogLevel& SDLEngine::Logs::getLevel() const
@@ -56,6 +29,26 @@ const SDLEngine::LogTag& SDLEngine::Logs::getTag() const
 
 SDLEngine::Logs& SDLEngine::operator<<(Logs& l, const std::string& msg)
 {
-  SDLEngine::LogsBase::print(l.getTag().str(), msg, l.getLevel());
+  if (!l.normal)
+  {
+    return;
+  }
+  l.normal << std::left;
+  switch (l.getLevel())
+  {
+  case LogLevel::ERROR:
+    l.error << RED << std::setw(7) << "ERROR ";
+    break;
+  case LogLevel::INFO:
+    l.normal << YELLOW << std::setw(7) << "INFO ";
+    break;
+  case LogLevel::DEBUG:
+    l.normal << std::setw(7) << "DEBUG ";
+    break;
+  default:
+    break;
+  }
+  l.normal << '[' << std::setw(10) << l.getTag().str() << "] ";
+  l.normal << std::setw(100) << msg << RESET << "\n";
   return l;
 }
