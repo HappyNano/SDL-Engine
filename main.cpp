@@ -21,75 +21,72 @@
 #include "Logs.hpp"
 #include "Timer.hpp"
 
+#include "Engine.hpp"
+
 using SDLEngine::LogLevel;
 using SDLEngine::logs;
 using SDLEngine::LogTag;
 
-void print_sdlerror()
-{
-  logs << LogLevel::ERROR << LogTag{"EngineSDL"} << SDL_GetError();
-}
+// namespace
+// {
+//   bool checkTextures(SDL_Renderer* renderer)
+//   {
+//     bool is_ok = true;
 
-namespace
-{
-  bool checkTextures(SDL_Renderer* renderer)
-  {
-    bool is_ok = true;
+//     std::vector< std::pair< std::string, std::string > > assets_names({
+//         {"cloud_small", "assets/cloud.png"},
+//         {"house_sunset", "assets/dom_z.png"},
+//         {"house_common", "assets/dom.png"},
+//         {"background_sunset", "assets/Zakat.png"},
+//         //  {"test_texture", "assets/test.png"}
+//     });
 
-    std::vector< std::pair< std::string, std::string > > assets_names({
-        {"cloud_small", "assets/cloud.png"},
-        {"house_sunset", "assets/dom_z.png"},
-        {"house_common", "assets/dom.png"},
-        {"background_sunset", "assets/Zakat.png"},
-        //  {"test_texture", "assets/test.png"}
-    });
+//     for (auto&& asset_name: assets_names)
+//     {
+//       if (SDLEngine::Assets::Instance().checkAndSaveTextures(renderer, asset_name.first, asset_name.second))
+//       {
+//         logs << LogLevel::INFO << LogTag{"Textures"} << ("Loaded texture: " + asset_name.second);
+//       }
+//       else
+//       {
+//         logs << LogLevel::ERROR << LogTag{"Textures"} << ("Failed to load texture: " + asset_name.second);
+//         is_ok = false;
+//       }
+//     }
 
-    for (auto&& asset_name: assets_names)
-    {
-      if (SDLEngine::Assets::Instance().checkAndSaveTextures(renderer, asset_name.first, asset_name.second))
-      {
-        logs << LogLevel::INFO << LogTag{"Textures"} << ("Loaded texture: " + asset_name.second);
-      }
-      else
-      {
-        logs << LogLevel::ERROR << LogTag{"Textures"} << ("Failed to load texture: " + asset_name.second);
-        is_ok = false;
-      }
-    }
+//     return is_ok;
+//   }
 
-    return is_ok;
-  }
+//   bool checkFonts()
+//   {
+//     bool is_ok = true;
 
-  bool checkFonts()
-  {
-    bool is_ok = true;
+//     std::vector< std::pair< std::string, std::string > > fonts_names({
+//         {"default", "assets/ff.ttf"},
+//         //  {"test_texture", "assets/test.png"}
+//     });
 
-    std::vector< std::pair< std::string, std::string > > fonts_names({
-        {"default", "assets/ff.ttf"},
-        //  {"test_texture", "assets/test.png"}
-    });
+//     for (auto&& font_name: fonts_names)
+//     {
+//       if (SDLEngine::Assets::Instance().checkAndSaveFonts(font_name.first, font_name.second, 1))
+//       {
+//         logs << LogLevel::INFO << LogTag{"Fonts"} << ("Loaded font: " + font_name.second);
+//       }
+//       else
+//       {
+//         logs << LogLevel::ERROR << LogTag{"Fonts"} << ("Failed to load font: " + font_name.second);
+//         is_ok = false;
+//       }
+//     }
 
-    for (auto&& font_name: fonts_names)
-    {
-      if (SDLEngine::Assets::Instance().checkAndSaveFonts(font_name.first, font_name.second, 1))
-      {
-        logs << LogLevel::INFO << LogTag{"Fonts"} << ("Loaded font: " + font_name.second);
-      }
-      else
-      {
-        logs << LogLevel::ERROR << LogTag{"Fonts"} << ("Failed to load font: " + font_name.second);
-        is_ok = false;
-      }
-    }
-
-    return is_ok;
-  }
-}
+//     return is_ok;
+//   }
+// }
 
 constexpr int width = 300;
 constexpr int height = 300;
 
-void handler(SDL_Renderer* renderer)
+void handler(SDL_Window*, SDL_Renderer* renderer)
 {
   // SDLEngine::Logs::Instance(std::cout, false);
   SDLEngine::UI::Texture cloud_texture{SDLEngine::Assets::Instance().getTextureByName(renderer, "cloud_small")};
@@ -117,7 +114,7 @@ void handler(SDL_Renderer* renderer)
   bool stopped = false;
   // double x = 0;
   SDLEngine::Timer timer;
-  timer.setFPS(10000);
+  timer.setFPS(100);
   timer.startTimer();
   int fps_i = 0;
   while (!stopped)
@@ -177,38 +174,21 @@ void handler(SDL_Renderer* renderer)
 
 int main()
 {
-  if (SDL_Init(SDL_INIT_EVERYTHING) < 0 || TTF_Init() < 0)
+  if (SDLEngine::Engine::SDLInit())
   {
-    print_sdlerror();
-    logs << LogLevel::ERROR << LogTag{"SDL"} << "Bad initialization!";
     return 1;
   }
 
-  SDL_Window* window = nullptr;
-  SDL_Renderer* renderer = nullptr;
+  // {
+  //   SDLEngine::Engine engine("SDL Engine", width, height);
 
-  window = SDL_CreateWindow("SDL Engine", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height, SDL_WINDOW_SHOWN);
-  renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
+  //   if (checkTextures(engine.getRenderer()) && checkFonts())
+  //   {
+  //     engine.start(handler);
+  //   }
+  // }
 
-  if (window == nullptr || renderer == nullptr)
-  {
-    print_sdlerror();
-    SDL_DestroyRenderer(renderer);
-    SDL_DestroyWindow(window);
-    SDL_Quit();
-    TTF_Quit();
-    return 1;
-  }
-
-  if (checkTextures(renderer) && checkFonts())
-  {
-    handler(renderer);
-  }
-
-  SDL_DestroyRenderer(renderer);
-  SDL_DestroyWindow(window);
-  SDL_Quit();
-  TTF_Quit();
+  SDLEngine::Engine::SDLQuit();
 
   return 0;
 }
