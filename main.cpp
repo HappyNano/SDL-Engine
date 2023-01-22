@@ -34,65 +34,6 @@ void print_sdlerror()
 constexpr int width = 300;
 constexpr int height = 300;
 
-namespace
-{
-  bool checkTextures(SDL_Renderer* renderer)
-  {
-    bool is_ok = true;
-
-    std::vector< std::pair< std::string, std::string > > assets_names({
-        {"cloud_small", "assets/cloud.png"},
-        {"house_sunset", "assets/dom_z.png"},
-        {"house_common", "assets/dom.png"},
-        {"background_sunset", "assets/Zakat.png"},
-        //  {"test_texture", "assets/test.png"}
-    });
-
-    for (auto&& asset_name: assets_names)
-    {
-      if (SDLEngine::Assets::Instance().checkAndSaveTextures(renderer, asset_name.first, asset_name.second))
-      {
-        logs << LogLevel::INFO << LogTag{"Textures"} << ("Loaded texture: " + asset_name.second);
-      }
-      else
-      {
-        logs << LogLevel::ERROR << LogTag{"Textures"} << ("Failed to load texture: " + asset_name.second);
-        is_ok = false;
-      }
-    }
-
-    return is_ok;
-  }
-
-  bool checkFonts()
-  {
-    bool is_ok = true;
-
-    std::vector< std::pair< std::string, std::string > > fonts_names({
-        {"default", "assets/ff.ttf"},
-        //  {"test_texture", "assets/test.png"}
-    });
-
-    for (auto&& font_name: fonts_names)
-    {
-      if (SDLEngine::Assets::Instance().checkAndSaveFonts(font_name.first, font_name.second, 1))
-      {
-        logs << LogLevel::INFO << LogTag{"Fonts"} << ("Loaded font: " + font_name.second);
-      }
-      else
-      {
-        logs << LogLevel::ERROR << LogTag{"Fonts"} << ("Failed to load font: " + font_name.second);
-        is_ok = false;
-      }
-    }
-
-    return is_ok;
-  }
-}
-
-constexpr int width = 300;
-constexpr int height = 300;
-
 void handler(SDL_Renderer* renderer)
 {
   // SDLEngine::Logs::Instance(std::cout, false);
