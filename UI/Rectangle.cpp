@@ -40,55 +40,63 @@ void SDLEngine::UI::Rectangle::swap(this_t& obj) noexcept
   std::swap(texture_, obj.texture_);
 }
 
-void SDLEngine::UI::Rectangle::setWidth(int width)
+typename SDLEngine::UI::Rectangle::this_t& SDLEngine::UI::Rectangle::setWidth(int width)
 {
   texture_.rect_.w = width;
+  return *this;
 }
-void SDLEngine::UI::Rectangle::setHeight(int height)
+typename SDLEngine::UI::Rectangle::this_t& SDLEngine::UI::Rectangle::setHeight(int height)
 {
   texture_.rect_.h = height;
+  return *this;
 }
-void SDLEngine::UI::Rectangle::setX(int x)
+typename SDLEngine::UI::Rectangle::this_t& SDLEngine::UI::Rectangle::setX(int x)
 {
   move(x - getX(), 0);
+  return *this;
 }
-void SDLEngine::UI::Rectangle::setY(int y)
+typename SDLEngine::UI::Rectangle::this_t& SDLEngine::UI::Rectangle::setY(int y)
 {
   move(0, y - getY());
+  return *this;
 }
-void SDLEngine::UI::Rectangle::move(int offset_x, int offset_y)
+typename SDLEngine::UI::Rectangle::this_t& SDLEngine::UI::Rectangle::move(int offset_x, int offset_y)
 {
   texture_.move(offset_x, offset_y);
   rect_ += {offset_x, offset_y};
+  return *this;
 }
-void SDLEngine::UI::Rectangle::setRect(const SDL_Rect& rect)
+typename SDLEngine::UI::Rectangle::this_t& SDLEngine::UI::Rectangle::setRect(const SDL_Rect& rect)
 {
   rect_ = rect;
   texture_.rect_ = rect_;
+  return *this;
 }
 
-void SDLEngine::UI::Rectangle::setColor(SDL_Color color)
+typename SDLEngine::UI::Rectangle::this_t& SDLEngine::UI::Rectangle::setColor(SDL_Color color)
 {
   if (color == color_)
   {
-    return;
+    return *this;
   }
   color_ = color;
   reRender();
+  return *this;
 }
-void SDLEngine::UI::Rectangle::setRadius(int round_radius)
+typename SDLEngine::UI::Rectangle::this_t& SDLEngine::UI::Rectangle::setRadius(int round_radius)
 {
   if (round_radius == round_radius_)
   {
-    return;
+    return *this;
   }
   if (round_radius < 0)
   {
-    Logs::print("Rectangle", "Round radius must be non-negative!", LogLevel::ERROR);
+    logs << LogLevel::ERROR << LogTag{"Rectangle"} << "Round radius must be non-negative!";
     throw std::logic_error("Round radius must be non-negative!");
   }
   round_radius_ = round_radius;
   reRender();
+  return *this;
 }
 
 int SDLEngine::UI::Rectangle::getWidth() const

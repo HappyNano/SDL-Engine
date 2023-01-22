@@ -6,38 +6,49 @@
 #define YELLOW "\033[1;33m"
 #define WHITE "\033[1;37m"
 
-SDLEngine::Logs& SDLEngine::Logs::Instance(std::ostream& stream, bool colored)
+SDLEngine::Logs SDLEngine::logs = SDLEngine::Logs{};
+
+SDLEngine::LogTag::LogTag(const std::string& s):
+  tag{s}
+{}
+
+const std::string& SDLEngine::LogTag::str() const
 {
-  static Logs singleton{stream, colored};
-  return singleton;
+  return tag;
 }
 
-void SDLEngine::Logs::print(const std::string& tag, const std::string& text, LogLevel level)
+const SDLEngine::LogLevel& SDLEngine::Logs::getLevel() const
 {
-  Instance().doPrint(tag, text, level);
+  return level_;
 }
 
-void SDLEngine::Logs::doPrint(const std::string& tag, const std::string& text, LogLevel level)
+const SDLEngine::LogTag& SDLEngine::Logs::getTag() const
 {
-  if (!ostream)
+  return tag_;
+}
+
+SDLEngine::Logs& SDLEngine::operator<<(Logs& l, const std::string& msg)
+{
+  if (!l.normal)
   {
-    return;
+    return l;
   }
-  ostream << std::left;
-  switch (level)
+  l.normal << std::left;
+  switch (l.getLevel())
   {
   case LogLevel::ERROR:
-    ostream << RED << std::setw(7) << "ERROR ";
+    l.error << RED << std::setw(7) << "ERROR ";
     break;
   case LogLevel::INFO:
-    ostream << YELLOW << std::setw(7) << "INFO ";
+    l.normal << YELLOW << std::setw(7) << "INFO ";
     break;
   case LogLevel::DEBUG:
-    ostream << std::setw(7) << "DEBUG ";
+    l.normal << std::setw(7) << "DEBUG ";
     break;
   default:
     break;
   }
-  ostream << '[' << std::setw(10) << tag << "] ";
-  ostream << std::setw(100) << text << RESET << "\n";
+  l.normal << '[' << std::setw(10) << l.getTag().str() << "] ";
+  l.normal << std::setw(100) << msg << RESET << "\n";
+  return l;
 }

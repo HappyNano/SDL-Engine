@@ -13,16 +13,43 @@ namespace SDLEngine
     DEBUG
   };
 
+  struct LogTag
+  {
+    LogTag() = default;
+    explicit LogTag(const std::string&);
+    const std::string& str() const;
+
+  private:
+    std::string tag;
+  };
+
   struct Logs
   {
-    static Logs& Instance(std::ostream& stream = std::cout, bool colored = true);
+    std::ostream& normal = std::cout;
+    std::ostream& error = std::cerr;
 
-    static void print(const std::string&, const std::string&, LogLevel);
-    void doPrint(const std::string&, const std::string&, LogLevel);
+    friend Logs& operator<<(Logs& l, LogLevel level)
+    {
+      l.level_ = level;
+      return l;
+    }
+    friend Logs& operator<<(Logs& l, const LogTag& tag)
+    {
+      l.tag_ = tag;
+      return l;
+    }
 
-    std::ostream& ostream;
-    bool colored;
+    const LogLevel& getLevel() const;
+    const LogTag& getTag() const;
+
+  private:
+    LogLevel level_;
+    LogTag tag_;
   };
+
+  Logs& operator<<(Logs&, const std::string&);
+
+  extern Logs logs;
 }
 
 #endif
