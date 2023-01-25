@@ -7,31 +7,45 @@
 
 #include <functional>
 #include <string>
+#include <thread>
+
+#include "Timer.hpp"
 
 namespace SDLEngine
 {
   class Engine
   {
   public:
-    using handler_type = std::function< void(SDL_Window*, SDL_Renderer*) >;
+    using handler_type = std::function< int(SDL_Window*, SDL_Renderer*, Engine&) >;
 
     Engine() = delete;
-    Engine(const char*, const int, const int);
+    Engine(handler_type);
     ~Engine();
 
-    SDL_Window* getWindow();
-    SDL_Renderer* getRenderer();
+    void start(int);
+    void wait();
+    int getFPS() const;
 
-    void start(handler_type);
+    static SDL_Window* getWindow();
+    static SDL_Renderer* getRenderer();
 
     static int SDLInit();
     static int SDLQuit();
+    static int openWindow(const char*, const int, const int);
+    static int closeWindow();
+
+    static bool canBeStarted();
 
   private:
-    SDL_Window* window_;
-    SDL_Renderer* renderer_;
+    static SDL_Window* window;
+    static SDL_Renderer* renderer;
 
-    bool canBeStarted() const;
+    handler_type handler_;
+    std::thread thread_;
+
+    std::unique_ptr< Timer > timer_; // There can be your own timer
+
+    void loop();
   };
 }
 

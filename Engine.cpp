@@ -2,6 +2,7 @@
 #include "Logs.hpp"
 
 #include <stdexcept>
+#include <functional>
 
 namespace
 {
@@ -14,42 +15,57 @@ namespace
   }
 }
 
-SDLEngine::Engine::Engine(const char* title, const int width, const int height):
-  window_(nullptr),
-  renderer_(nullptr)
+SDLEngine::Engine::Engine(handler_type handler):
+  handler_{handler},
+  thread_{},
+  timer_{Timer::makeDefaultTimer()}
+{}
+
+SDLEngine::Engine::~Engine()
+{}
+
+void SDLEngine::Engine::start(int FPS)
 {
-  window_ = SDL_CreateWindow(title, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height, SDL_WINDOW_SHOWN);
-  renderer_ = SDL_CreateRenderer(window_, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
-  if (!window_ || !renderer_)
+  timer_->setFPS(FPS);
+  thread_ = std::thread(std::bind(&Engine::loop, *this));
+}
+
+void SDLEngine::Engine::wait()
+{
+  if (thread_.joinable())
   {
-    print_sdlerror();
-    throw std::logic_error("Bad initialization");
+    thread_.join();
+  }
+  else
+  {
+    logs << LogLevel::ERROR << LogTag{"Engine"} << "There is no any thread";
   }
 }
 
-SDLEngine::Engine::~Engine()
+int SDLEngine::Engine::getFPS() const
 {
-  SDL_DestroyRenderer(renderer_);
-  SDL_DestroyWindow(window_);
+  return timer_->getCurrentFPS();
+}
+
+void SDLEngine::Engine::loop()
+{
+  int return_value = 0;
+  timer_->startTimer();
+  while (return_value == 0)
+  {
+    timer_->updateTimer();
+    return_value = handler_(getWindow(), getRenderer(), *this);
+  }
 }
 
 SDL_Window* SDLEngine::Engine::getWindow()
 {
-  return window_;
+  return window;
 }
 
 SDL_Renderer* SDLEngine::Engine::getRenderer()
 {
-  return renderer_;
-}
-
-void SDLEngine::Engine::start(handler_type handler)
-{
-  if (!canBeStarted())
-  {
-    throw std::logic_error("Error!");
-  }
-  handler(window_, renderer_);
+  return renderer;
 }
 
 int SDLEngine::Engine::SDLInit()
@@ -60,17 +76,49 @@ int SDLEngine::Engine::SDLInit()
     logs << LogLevel::ERROR << LogTag{"SDL"} << "Bad initialization!";
     return 1;
   }
+  logs << LogLevel::INFO << LogTag{"SDL"} << "Initialized.";
   return 0;
 }
 
 int SDLEngine::Engine::SDLQuit()
 {
+  closeWindow();
   SDL_Quit();
   TTF_Quit();
+  logs << LogLevel::INFO << LogTag{"Engine"} << "Uninitialized.";
   return 0;
 }
 
-bool SDLEngine::Engine::canBeStarted() const
+int SDLEngine::Engine::openWindow(const char* title, const int width, const int height)
 {
-  return window_ && renderer_;
+  if (canBeStarted())
+  {
+    logs << LogLevel::ERROR << LogTag{"Engine"} << "Window and Renderer already exist!";
+    return 1;
+  }
+
+  window = SDL_CreateWindow(title, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height, SDL_WINDOW_SHOWN);
+  renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
+
+  if (!canBeStarted())
+  {
+    print_sdlerror();
+    return -1;
+  }
+}
+
+int SDLEngine::Engine::closeWindow()
+{
+  if (canBeStarted())
+  {
+    SDL_DestroyRenderer(renderer);
+    SDL_DestroyWindow(window);
+    return 0;
+  }
+  return 1;
+}
+
+bool SDLEngine::Engine::canBeStarted()
+{
+  return window && renderer;
 }

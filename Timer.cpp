@@ -1,6 +1,11 @@
 #include "Timer.hpp"
 
-SDLEngine::Timer::Timer():
+std::unique_ptr< SDLEngine::Timer > SDLEngine::Timer::makeDefaultTimer()
+{
+  return std::make_unique< SDLEngine::TimerImpl >();
+}
+
+SDLEngine::TimerImpl::TimerImpl():
   FPS_num(0),
   FPS_i(0),
   FPS(60),
@@ -13,13 +18,13 @@ SDLEngine::Timer::Timer():
   end_time = SDL_GetTicks();
 }
 
-void SDLEngine::Timer::startTimer()
+void SDLEngine::TimerImpl::startTimer()
 {
   start_time = SDL_GetTicks();
   end_time = SDL_GetTicks();
 }
 
-void SDLEngine::Timer::updateTimer()
+void SDLEngine::TimerImpl::updateTimer()
 {
   end_time = SDL_GetTicks();
 
@@ -42,17 +47,17 @@ void SDLEngine::Timer::updateTimer()
   start_time = SDL_GetTicks();
 }
 
-int SDLEngine::Timer::getCurrentFPS() const
+int SDLEngine::TimerImpl::getCurrentFPS() const
 {
   return FPS_num / FPS_i;
 }
 
-float SDLEngine::Timer::getDT() const
+float SDLEngine::TimerImpl::getDT() const
 {
   return dT;
 }
 
-void SDLEngine::Timer::setFPS(int FPS)
+void SDLEngine::TimerImpl::setFPS(int FPS)
 {
   this->FPS = FPS;
   FPS_ms = 1000.f / this->FPS;

@@ -33,11 +33,11 @@ run: $$(EXECUTABLE)
 		@./$(EXECUTABLE)
 
 valgrind: $$(EXECUTABLE) ./minimal.supp
-		@valgrind --leak-check=full --show-reachable=yes --error-limit=no --suppressions=./minimal.supp ./$(EXECUTABLE)
+		@valgrind --leak-check=full --show-reachable=yes --error-limit=no --suppressions=./minimal.supp --gen-suppressions=all ./$(EXECUTABLE)
 
 valgrind-create: $$(EXECUTABLE)
-		@valgrind --leak-check=full --show-reachable=yes --error-limit=no --suppressions=./minimal.supp --gen-suppressions=all --log-file=minimalraw.log ./$(EXECUTABLE)
-		@cat ./minimalraw.log | ./suppressions.sh >> minimal.supp
+		@valgrind --leak-check=full --show-reachable=yes --error-limit=no --gen-suppressions=all --log-file=minimalraw.log ./$(EXECUTABLE)
+		@cat ./minimalraw.log | ./parse_valgrind_suppressions.sh > minimal.supp
 
 clean:
 		@echo "[CLEAN UP]"

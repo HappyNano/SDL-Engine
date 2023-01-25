@@ -2,18 +2,35 @@
 #define SDL_ENGINE_TIMER_HPP
 
 #include <SDL2/SDL.h>
+#include <memory>
 
 namespace SDLEngine
 {
   class Timer
   {
   public:
-    Timer();
+    virtual ~Timer() = default;
 
-    void setFPS(int FPS);
-    void startTimer();
-    void updateTimer();
-    int getCurrentFPS() const;
+    virtual void setFPS(int) = 0;
+    virtual void startTimer() = 0;
+    virtual void updateTimer() = 0;
+    virtual int getCurrentFPS() const = 0;
+
+    static std::unique_ptr< Timer > makeDefaultTimer();
+
+  protected:
+    Timer() = default;
+  };
+
+  class TimerImpl: public Timer
+  {
+  public:
+    TimerImpl();
+
+    void setFPS(int FPS) override;
+    void startTimer() override;
+    void updateTimer() override;
+    int getCurrentFPS() const override;
     float getDT() const;
 
   private:
