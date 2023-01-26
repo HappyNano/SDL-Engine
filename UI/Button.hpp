@@ -8,7 +8,7 @@ namespace SDLEngine
 {
   namespace UI
   {
-    class Button: public TextBox
+    class Button: virtual public TextBox
     {
     public:
       using func_type = std::function< void(void) >;

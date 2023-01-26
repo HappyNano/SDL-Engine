@@ -3,11 +3,13 @@
 
 #include <SDL2/SDL.h>
 
+#include "Drawable.hpp"
+
 namespace SDLEngine
 {
   namespace UI
   {
-    class UIElement
+    class UIElement: public Drawable
     {
     public:
       using this_t = UIElement;
@@ -26,8 +28,6 @@ namespace SDLEngine
       virtual const SDL_Rect& getRect() const = 0;
 
       virtual void handleEvent(const SDL_Event&) = 0;
-
-      virtual void render(SDL_Renderer*) = 0;
 
     protected:
       UIElement() = default;

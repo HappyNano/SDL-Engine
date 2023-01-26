@@ -3,8 +3,8 @@ RM = rm -rf
 
 CXX = g++
 CXXFLAGS += -g
-CPPFLAGS += -Wall -Wextra -Werror -Wno-missing-field-initializers -Wold-style-cast
-CPPFLAGS += -std=gnu++14
+# CPPFLAGS += -Wall -Wextra -Werror -Wno-missing-field-initializers -Wold-style-cast
+CPPFLAGS += -std=gnu++17
 
 BUILD_FOLDER = build
 

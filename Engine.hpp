@@ -10,21 +10,24 @@
 #include <thread>
 
 #include "Timer.hpp"
+#include "Drawable.hpp"
 
 namespace SDLEngine
 {
   class Engine
   {
   public:
+    using objects_type = std::vector< std::weak_ptr< UI::Drawable > >;
     using handler_type = std::function< int(SDL_Window*, SDL_Renderer*, Engine&) >;
 
     Engine() = delete;
-    Engine(handler_type);
+    Engine(handler_type, objects_type*);
     ~Engine();
 
     void start(int);
     void wait();
     int getFPS() const;
+    objects_type& getObjects();
 
     static SDL_Window* getWindow();
     static SDL_Renderer* getRenderer();
@@ -37,15 +40,19 @@ namespace SDLEngine
     static bool canBeStarted();
 
   private:
-    static SDL_Window* window;
-    static SDL_Renderer* renderer;
+    inline static SDL_Window* window{0};
+    inline static SDL_Renderer* renderer{0};
 
     handler_type handler_;
-    std::thread thread_;
+    std::thread handler_thread_;
+    std::thread graph_thread_;
+    objects_type* objects_;
 
     std::unique_ptr< Timer > timer_; // There can be your own timer
 
-    void loop();
+    bool running_;
+
+    void loopGraph();
   };
 }
 

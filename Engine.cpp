@@ -15,10 +15,13 @@ namespace
   }
 }
 
-SDLEngine::Engine::Engine(handler_type handler):
+SDLEngine::Engine::Engine(handler_type handler, objects_type* objects):
   handler_{handler},
-  thread_{},
-  timer_{Timer::makeDefaultTimer()}
+  handler_thread_{},
+  graph_thread_{},
+  objects_{objects},
+  timer_{Timer::makeDefaultTimer()},
+  running_{false}
 {}
 
 SDLEngine::Engine::~Engine()
@@ -26,19 +29,22 @@ SDLEngine::Engine::~Engine()
 
 void SDLEngine::Engine::start(int FPS)
 {
+  running_ = true;
   timer_->setFPS(FPS);
-  thread_ = std::thread(std::bind(&Engine::loop, *this));
+  graph_thread_ = std::thread(std::bind(&SDLEngine::Engine::loopGraph, this));
+  handler_thread_ = std::thread(handler_, Engine::getWindow(), Engine::getRenderer(), *this);
 }
 
 void SDLEngine::Engine::wait()
 {
-  if (thread_.joinable())
+  if (handler_thread_.joinable())
   {
-    thread_.join();
+    handler_thread_.join();
   }
-  else
+  running_ = false;
+  if (graph_thread_.joinable())
   {
-    logs << LogLevel::ERROR << LogTag{"Engine"} << "There is no any thread";
+    graph_thread_.join();
   }
 }
 
@@ -47,14 +53,23 @@ int SDLEngine::Engine::getFPS() const
   return timer_->getCurrentFPS();
 }
 
-void SDLEngine::Engine::loop()
+typename SDLEngine::Engine::objects_type& SDLEngine::Engine::getObjects()
 {
-  int return_value = 0;
+  return *objects_;
+}
+
+void SDLEngine::Engine::loopGraph()
+{
   timer_->startTimer();
-  while (return_value == 0)
+  while (running_)
   {
     timer_->updateTimer();
-    return_value = handler_(getWindow(), getRenderer(), *this);
+    SDL_RenderClear(Engine::getRenderer());
+    for (auto&& obj: *objects_)
+    {
+      obj.lock()->render(Engine::getRenderer());
+    }
+    SDL_RenderPresent(Engine::getRenderer());
   }
 }
 
@@ -105,6 +120,8 @@ int SDLEngine::Engine::openWindow(const char* title, const int width, const int 
     print_sdlerror();
     return -1;
   }
+
+  return 0;
 }
 
 int SDLEngine::Engine::closeWindow()
