@@ -14,6 +14,18 @@
 
 namespace SDLEngine
 {
+  class SceneInterface
+  {
+  public:
+    virtual ~SceneInterface() = default;
+
+    virtual void render() = 0;
+    virtual void handleEvents() = 0;
+
+  protected:
+    SceneInterface() = default;
+  };
+
   class Engine
   {
   public:
