@@ -8,6 +8,7 @@
 #include <functional>
 #include <string>
 #include <thread>
+#include <vector>
 
 #include "Timer.hpp"
 #include "Drawable.hpp"
