@@ -15,17 +15,33 @@ namespace
   }
 }
 
-SDLEngine::Engine::Engine(handler_type handler, objects_type* objects):
-  handler_{handler},
+SDLEngine::Engine::Engine():
+  scenes{},
+  scene_id{0},
+  render_thread_{},
   handler_thread_{},
-  graph_thread_{},
-  objects_{objects},
-  timer_{Timer::makeDefaultTimer()},
+  render_timer_{Timer::makeDefaultTimer()},
+  handler_timer_{Timer::makeDefaultTimer()},
   running_{false}
 {}
 
 SDLEngine::Engine::~Engine()
 {}
+
+void SDLEngine::Engine::addScene(scene_ptr scene)
+{
+  scenes.insert({scenes.size(), std::move(scene)});
+}
+
+size_t SDLEngine::Engine::getCurrentSceneNum() const
+{
+  return scene_id;
+}
+
+void SDLEngine::Engine::changeScene(size_t new_id)
+{
+  scene_id = new_id;
+}
 
 void SDLEngine::Engine::start(int FPS)
 {

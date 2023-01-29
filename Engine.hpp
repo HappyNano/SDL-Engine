@@ -9,9 +9,10 @@
 #include <string>
 #include <thread>
 #include <vector>
+#include <map>
 
 #include "Timer.hpp"
-#include "Drawable.hpp"
+#include "UI/Drawable.hpp"
 
 namespace SDLEngine
 {
@@ -20,6 +21,8 @@ namespace SDLEngine
   public:
     virtual ~SceneInterface() = default;
 
+    virtual void pause() = 0;
+    virtual void resume() = 0;
     virtual void render() = 0;
     virtual void handleEvents() = 0;
 
@@ -30,12 +33,15 @@ namespace SDLEngine
   class Engine
   {
   public:
+    using scene_ptr = std::unique_ptr< SceneInterface >;
     using objects_type = std::vector< std::weak_ptr< UI::Drawable > >;
-    using handler_type = std::function< int(SDL_Window*, SDL_Renderer*, Engine&) >;
 
-    Engine() = delete;
-    Engine(handler_type, objects_type*);
+    Engine() = default;
     ~Engine();
+
+    void addScene(scene_ptr);
+    size_t getCurrentSceneNum() const;
+    void changeScene(size_t);
 
     void start(int);
     void wait();
@@ -56,12 +62,14 @@ namespace SDLEngine
     inline static SDL_Window* window{0};
     inline static SDL_Renderer* renderer{0};
 
-    handler_type handler_;
-    std::thread handler_thread_;
-    std::thread graph_thread_;
-    objects_type* objects_;
+    std::map< size_t, scene_ptr > scenes;
+    size_t scene_id;
 
-    std::unique_ptr< Timer > timer_; // There can be your own timer
+    std::thread render_thread_;
+    std::thread handler_thread_;
+
+    std::unique_ptr< Timer > render_timer_; // There can be your own timer
+    std::unique_ptr< Timer > handler_timer_;
 
     bool running_;
 
