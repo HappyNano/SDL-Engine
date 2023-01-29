@@ -21,10 +21,15 @@ namespace SDLEngine
   public:
     virtual ~SceneInterface() = default;
 
+    virtual bool is_working() const;
+
     virtual void pause() = 0;
     virtual void resume() = 0;
     virtual void render() = 0;
     virtual void handleEvents() = 0;
+
+    virtual size_t getHandlerTPS() const noexcept;
+    virtual size_t getGraphicsTPS() const noexcept;
 
   protected:
     SceneInterface() = default;
@@ -36,17 +41,17 @@ namespace SDLEngine
     using scene_ptr = std::unique_ptr< SceneInterface >;
     using objects_type = std::vector< std::weak_ptr< UI::Drawable > >;
 
-    Engine() = default;
+    Engine();
     ~Engine();
 
     void addScene(scene_ptr);
     size_t getCurrentSceneNum() const;
     void changeScene(size_t);
 
-    void start(int);
+    void start();
+    void stop();
     void wait();
     int getFPS() const;
-    objects_type& getObjects();
 
     static SDL_Window* getWindow();
     static SDL_Renderer* getRenderer();
@@ -71,9 +76,8 @@ namespace SDLEngine
     std::unique_ptr< Timer > render_timer_; // There can be your own timer
     std::unique_ptr< Timer > handler_timer_;
 
-    bool running_;
-
-    void loopGraph();
+    void loopRender(size_t);
+    void loopHandler(size_t);
   };
 }
 

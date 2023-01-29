@@ -161,8 +161,8 @@ int main()
 
   if (checkTextures(SDLEngine::Engine::getRenderer()) && checkFonts())
   {
-    SDLEngine::Engine engine(handler);
-    engine.start(100);
+    SDLEngine::Engine engine;
+    engine.start();
     engine.wait();
   }
 

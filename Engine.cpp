@@ -21,8 +21,7 @@ SDLEngine::Engine::Engine():
   render_thread_{},
   handler_thread_{},
   render_timer_{Timer::makeDefaultTimer()},
-  handler_timer_{Timer::makeDefaultTimer()},
-  running_{false}
+  handler_timer_{Timer::makeDefaultTimer()}
 {}
 
 SDLEngine::Engine::~Engine()
@@ -40,15 +39,24 @@ size_t SDLEngine::Engine::getCurrentSceneNum() const
 
 void SDLEngine::Engine::changeScene(size_t new_id)
 {
+  auto&& current_scene = scenes.at(scene_id);
+  current_scene->pause();
+  render_thread_.detach();
+  handler_thread_.detach();
+
   scene_id = new_id;
+  render_thread_ = std::thread(std::bind(&SDLEngine::Engine::loopRender, this, scene_id));
+  handler_thread_ = std::thread(std::bind(&SDLEngine::Engine::loopHandler, this, scene_id));
 }
 
-void SDLEngine::Engine::start(int FPS)
+void SDLEngine::Engine::start()
 {
-  running_ = true;
-  timer_->setFPS(FPS);
-  graph_thread_ = std::thread(std::bind(&SDLEngine::Engine::loopGraph, this));
-  handler_thread_ = std::thread(handler_, Engine::getWindow(), Engine::getRenderer(), *this);
+  auto&& current_scene = scenes.at(scene_id);
+  render_timer_->setFPS(current_scene->getGraphicsTPS());
+  handler_timer_->setFPS(current_scene->getHandlerTPS());
+  current_scene->resume();
+  render_thread_ = std::thread(std::bind(&SDLEngine::Engine::loopRender, this, scene_id));
+  handler_thread_ = std::thread(std::bind(&SDLEngine::Engine::loopHandler, this, scene_id));
 }
 
 void SDLEngine::Engine::wait()
@@ -57,35 +65,34 @@ void SDLEngine::Engine::wait()
   {
     handler_thread_.join();
   }
-  running_ = false;
-  if (graph_thread_.joinable())
+  if (render_thread_.joinable())
   {
-    graph_thread_.join();
+    render_thread_.join();
   }
 }
 
 int SDLEngine::Engine::getFPS() const
 {
-  return timer_->getCurrentFPS();
+  return render_timer_->getCurrentFPS();
 }
 
-typename SDLEngine::Engine::objects_type& SDLEngine::Engine::getObjects()
+void SDLEngine::Engine::loopRender(size_t id)
 {
-  return *objects_;
-}
-
-void SDLEngine::Engine::loopGraph()
-{
-  timer_->startTimer();
-  while (running_)
+  render_timer_->startTimer();
+  while (scenes.at(id)->is_working())
   {
-    timer_->updateTimer();
-    SDL_RenderClear(Engine::getRenderer());
-    for (auto&& obj: *objects_)
-    {
-      obj.lock()->render(Engine::getRenderer());
-    }
-    SDL_RenderPresent(Engine::getRenderer());
+    render_timer_->updateTimer();
+    scenes.at(scene_id)->render();
+  }
+}
+
+void SDLEngine::Engine::loopHandler(size_t id)
+{
+  handler_timer_->startTimer();
+  while (scenes.at(id)->is_working())
+  {
+    handler_timer_->updateTimer();
+    scenes.at(scene_id)->handleEvents();
   }
 }
 
