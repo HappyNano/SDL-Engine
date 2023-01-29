@@ -21,15 +21,15 @@ namespace SDLEngine
   public:
     virtual ~SceneInterface() = default;
 
-    virtual bool is_working() const;
+    virtual bool is_working() const = 0;
 
     virtual void pause() = 0;
     virtual void resume() = 0;
     virtual void render() = 0;
     virtual void handleEvents() = 0;
 
-    virtual size_t getHandlerTPS() const noexcept;
-    virtual size_t getGraphicsTPS() const noexcept;
+    virtual size_t getHandlerTPS() const noexcept = 0;
+    virtual size_t getGraphicsTPS() const noexcept = 0;
 
   protected:
     SceneInterface() = default;
