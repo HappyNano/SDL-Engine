@@ -13,7 +13,7 @@ namespace SDLEngine
 
     virtual void setFPS(int) = 0;
     virtual void startTimer() = 0;
-    virtual void updateTimer() = 0;
+    virtual int updateTimer() = 0;
     virtual int getCurrentFPS() const = 0;
 
     static std::unique_ptr< Timer > makeDefaultTimer();
@@ -29,7 +29,7 @@ namespace SDLEngine
 
     void setFPS(int FPS) override;
     void startTimer() override;
-    void updateTimer() override;
+    int updateTimer() override;
     int getCurrentFPS() const override;
     float getDT() const;
 

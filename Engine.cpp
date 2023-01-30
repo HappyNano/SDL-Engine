@@ -1,6 +1,7 @@
 #include "Engine.hpp"
 #include "Logs.hpp"
 
+#include <chrono>
 #include <stdexcept>
 #include <functional>
 
@@ -15,13 +16,14 @@ namespace
   {
     logs << LogLevel::ERROR << LogTag{"Engine"} << SDL_GetError();
   }
-  void looping(std::unique_ptr< Timer >& timer, std::map< size_t, scene_ptr >& scenes, size_t id)
+  void loopHandler(std::unique_ptr< Timer >& timer, std::map< size_t, scene_ptr >& scenes, size_t id)
   {
     timer->startTimer();
     while (scenes.at(id)->is_working())
     {
-      timer->updateTimer();
-      scenes.at(id)->render();
+      std::chrono::duration<double, std::milli> sleep_for_ms{timer->updateTimer()};
+      std::this_thread::sleep_for(sleep_for_ms);
+      scenes.at(id)->handleEvents();
     }
   }
 }
@@ -66,7 +68,7 @@ void SDLEngine::Engine::start()
   render_timer_->setFPS(current_scene->getGraphicsTPS());
   handler_timer_->setFPS(current_scene->getHandlerTPS());
   current_scene->resume();
-  handler_thread_ = std::thread(std::bind(looping, std::ref(handler_timer_), std::ref(scenes), scene_id));
+  handler_thread_ = std::thread(std::bind(loopHandler, std::ref(handler_timer_), std::ref(scenes), scene_id));
   loopRender(scene_id);
 }
 
@@ -95,7 +97,8 @@ void SDLEngine::Engine::loopRender(size_t id)
   render_timer_->startTimer();
   while (scenes.at(id)->is_working())
   {
-    render_timer_->updateTimer();
+    SDL_Delay(
+    render_timer_->updateTimer());
     scenes.at(scene_id)->render();
   }
 }

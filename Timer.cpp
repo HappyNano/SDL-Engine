@@ -24,13 +24,13 @@ void SDLEngine::TimerImpl::startTimer()
   end_time = SDL_GetTicks();
 }
 
-void SDLEngine::TimerImpl::updateTimer()
+int SDLEngine::TimerImpl::updateTimer()
 {
   end_time = SDL_GetTicks();
 
   if (end_time - start_time < FPS_ms)
   {
-    SDL_Delay(FPS_ms - end_time + start_time);
+    return FPS_ms - end_time + start_time;
   }
 
   dT = (SDL_GetTicks() - start_time) / 1000.f;
@@ -45,6 +45,7 @@ void SDLEngine::TimerImpl::updateTimer()
   FPS_i += 1;
 
   start_time = SDL_GetTicks();
+  return 0;
 }
 
 int SDLEngine::TimerImpl::getCurrentFPS() const
