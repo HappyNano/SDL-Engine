@@ -51,7 +51,10 @@ void SDLEngine::Engine::changeScene(size_t new_id)
 {
   auto&& current_scene = scenes.at(scene_id);
   current_scene->pause();
-  handler_thread_.detach();
+  if (handler_thread_.joinable())
+  {
+    handler_thread_.detach();
+  }
 
   scene_id = new_id;
   start();

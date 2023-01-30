@@ -19,6 +19,7 @@ namespace SDLEngine
       void setFunction(func_type);
       func_type getFunction() const;
 
+      virtual void render(SDL_Renderer*) override;
       virtual void handleEvent(const SDL_Event&) override;
 
     private:
@@ -29,6 +30,9 @@ namespace SDLEngine
       bool is_pressed_;
 
       func_type function_;
+
+      bool _is_color_changed;
+      SDL_Color _color_change_to;
     };
   }
 }

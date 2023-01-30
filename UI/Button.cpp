@@ -19,6 +19,16 @@ typename SDLEngine::UI::Button::func_type SDLEngine::UI::Button::getFunction() c
   return function_;
 }
 
+void SDLEngine::UI::Button::render(SDL_Renderer* renderer)
+{
+  if (_is_color_changed)
+  {
+    _is_color_changed = false;
+    getBackground().setColor(_color_change_to);
+  }
+  TextBox::render(renderer);
+}
+
 void SDLEngine::UI::Button::handleEvent(const SDL_Event& event)
 {
   switch (event.type)
@@ -50,14 +60,15 @@ void SDLEngine::UI::Button::handleEvent(const SDL_Event& event)
   }
   }
 
+  _is_color_changed = true;
   if (is_pressed_)
   {
-    getBackground().setColor(pressed_color_);
+    _color_change_to = pressed_color_;
   }
   else if (is_hovered_)
-    getBackground().setColor(hovered_color_);
+    _color_change_to = hovered_color_;
   else
   {
-    getBackground().setColor(normal_color_);
+    _color_change_to = normal_color_;
   }
 }
