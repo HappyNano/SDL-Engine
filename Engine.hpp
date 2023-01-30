@@ -70,14 +70,12 @@ namespace SDLEngine
     std::map< size_t, scene_ptr > scenes;
     size_t scene_id;
 
-    std::thread render_thread_;
     std::thread handler_thread_;
 
     std::unique_ptr< Timer > render_timer_; // There can be your own timer
     std::unique_ptr< Timer > handler_timer_;
 
     void loopRender(size_t);
-    void loopHandler(size_t);
   };
 }
 

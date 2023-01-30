@@ -9,16 +9,26 @@ namespace
   using SDLEngine::LogLevel;
   using SDLEngine::logs;
   using SDLEngine::LogTag;
+  using scene_ptr = typename SDLEngine::Engine::scene_ptr;
+  using SDLEngine::Timer;
   void print_sdlerror()
   {
     logs << LogLevel::ERROR << LogTag{"Engine"} << SDL_GetError();
+  }
+  void looping(std::unique_ptr< Timer >& timer, std::map< size_t, scene_ptr >& scenes, size_t id)
+  {
+    timer->startTimer();
+    while (scenes.at(id)->is_working())
+    {
+      timer->updateTimer();
+      scenes.at(id)->render();
+    }
   }
 }
 
 SDLEngine::Engine::Engine():
   scenes{},
   scene_id{0},
-  render_thread_{},
   handler_thread_{},
   render_timer_{Timer::makeDefaultTimer()},
   handler_timer_{Timer::makeDefaultTimer()}
@@ -41,12 +51,10 @@ void SDLEngine::Engine::changeScene(size_t new_id)
 {
   auto&& current_scene = scenes.at(scene_id);
   current_scene->pause();
-  render_thread_.detach();
   handler_thread_.detach();
 
   scene_id = new_id;
-  render_thread_ = std::thread(std::bind(&SDLEngine::Engine::loopRender, this, scene_id));
-  handler_thread_ = std::thread(std::bind(&SDLEngine::Engine::loopHandler, this, scene_id));
+  start();
 }
 
 void SDLEngine::Engine::start()
@@ -55,8 +63,15 @@ void SDLEngine::Engine::start()
   render_timer_->setFPS(current_scene->getGraphicsTPS());
   handler_timer_->setFPS(current_scene->getHandlerTPS());
   current_scene->resume();
-  render_thread_ = std::thread(std::bind(&SDLEngine::Engine::loopRender, this, scene_id));
-  handler_thread_ = std::thread(std::bind(&SDLEngine::Engine::loopHandler, this, scene_id));
+  handler_thread_ = std::thread(std::bind(looping, std::ref(handler_timer_), std::ref(scenes), scene_id));
+  loopRender(scene_id);
+}
+
+void SDLEngine::Engine::stop()
+{
+  auto&& current_scene = scenes.at(scene_id);
+  current_scene->pause();
+  handler_thread_.detach();
 }
 
 void SDLEngine::Engine::wait()
@@ -64,10 +79,6 @@ void SDLEngine::Engine::wait()
   if (handler_thread_.joinable())
   {
     handler_thread_.join();
-  }
-  if (render_thread_.joinable())
-  {
-    render_thread_.join();
   }
 }
 
@@ -83,16 +94,6 @@ void SDLEngine::Engine::loopRender(size_t id)
   {
     render_timer_->updateTimer();
     scenes.at(scene_id)->render();
-  }
-}
-
-void SDLEngine::Engine::loopHandler(size_t id)
-{
-  handler_timer_->startTimer();
-  while (scenes.at(id)->is_working())
-  {
-    handler_timer_->updateTimer();
-    scenes.at(scene_id)->handleEvents();
   }
 }
 
